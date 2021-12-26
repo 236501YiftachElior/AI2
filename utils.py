@@ -10,11 +10,10 @@ BETA_VALUE_INIT = None
 
 
 class Stage1State:
-    def __init__(self, soldiers_p1, soldiers_p2, placement, direction,board_state):
+    def __init__(self, soldiers_p1, soldiers_p2, placement,board_state):
         self.soldiers_p1 = soldiers_p1
         self.soldiers_p2 = soldiers_p2
         self.placement = placement
-        self.direction = direction
         self.board_state = board_state
         self.board_state[placement]=1
 
