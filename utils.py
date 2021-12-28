@@ -26,6 +26,14 @@ class Stage2State:
         self.direction = direction
         self.board_state = board_state
 
+class State:
+    def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn):
+        self.soldiers_p1 = soldiers_p1
+        self.soldiers_p2 = soldiers_p2
+        self.board_state = board_state
+        self.last_move = last_move
+        self.turn = turn
+
 
 def get_directions(position):
     """Returns all the possible directions of a player in the game as a list.

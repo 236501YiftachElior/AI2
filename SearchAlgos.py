@@ -39,9 +39,8 @@ class MiniMax(SearchAlgos):
         :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
         """
         # TODO: erase the following line and implement this function.
-        if depth == 0:
-            # TODO: not sure
-            return self.utility(state, self.goal(state), maximizing_player), state.direction
+        if depth == 0 or self.goal(state):
+            return self.utility(state, self.goal(state), maximizing_player), state.last_move
         options = [self.search(state, depth - 1, not maximizing_player) for state in self.succ(state)]
         utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
         if maximizing_player:

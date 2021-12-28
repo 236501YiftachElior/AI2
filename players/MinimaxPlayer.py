@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import MiniMax
-from utils import Stage1State, Stage2State, _is_goal_state
+from utils import Stage1State, Stage2State, _is_goal_state , State
 import time
 
 
@@ -36,8 +36,83 @@ class Player(AbstractPlayer):
 
         return rival_cells[rival_cell_idx]
 
-    def _make_mill_get_cell(self,state,isMaximumPlayer):
-        rival_cell = self._choose_cell_to_kill(state,isMaximumPlayer)
+    """""
+
+    def _get_states_from_mill(self,last_placement, soldier_to_place, turn, board, attacker_soldiers, attacked_soldiers):
+        for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
+            if placement_player_to_remove == -1:
+                continue
+            attacked_soldiers[index_player_to_remove] = -2
+            board[placement_player_to_remove] = 0
+            last_move = (last_placement, soldier_to_place, placement_player_to_remove)
+            yield State(attacker_soldiers, attacked_soldiers, board, last_move, turn + 1)
+    """""
+
+
+    def _get_succ_stage_1(self, state : State ,isMaximumPlayer):
+        my_pos_copy = state.soldiers_p1.copy()
+        rival_pos_copy = state.soldiers_p2.copy()
+        copy_board = state.board_state.copy()
+        for placement in np.where(self.board >0)[0]:
+            if isMaximumPlayer:
+                copy_board[placement] = 1
+                pos_index = np.argwhere(my_pos_copy == -1)[0][0]
+                my_pos_copy[pos_index] = placement
+                if self.is_mill(placement):
+                    for index_rival,rival_pos in enumerate(rival_pos_copy):
+                        if rival_pos == -1:
+                            continue
+                        rival_pos_copy[index_rival] = -2
+                        copy_board[rival_pos] = 0
+                        last_move = (placement,pos_index,rival_pos)
+                        yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
+                else:
+                    last_move = (placement, pos_index, -1)
+                    yield State(my_pos_copy, rival_pos_copy, copy_board, last_move, state.turn +1)
+            else:
+                copy_board[placement] = 1
+                pos_index = np.argwhere(my_pos_copy == -1)[0][0]
+                rival_pos_copy[pos_index] = placement
+                if self.is_mill(placement):
+                    for index_player,player_pos in enumerate(my_pos_copy):
+                        if player_pos == -1:
+                            continue
+                        my_pos_copy[index_player] = -2
+                        copy_board[player_pos] = 0
+                        last_move = (placement,pos_index,player_pos)
+                        yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
+                else:
+                    last_move = (placement, pos_index, -1)
+                    yield State(my_pos_copy, rival_pos_copy, copy_board, last_move, state.turn +1)
+
+
+    def _get_succ_stage_2(self, state : State ,isMaximumPlayer):
+        my_pos_copy = state.soldiers_p1.copy()
+        rival_pos_copy = state.soldiers_p2.copy()
+        board_copy = state.board_state.copy()
+
+
+
+    def _get_possible_movements(self, position, board):
+        directions = np.array(self.directions[position])
+        return directions[np.argwhere(board[np.array(directions)]==0)].squeeze(1)
+
+
+
+    def get_succ(self, state, isMaximumPlayer=True):
+        if self.turn < 18:
+            return self._get_succ_stage_1(state,isMaximumPlayer)
+        else:
+            return self._get_succ_stage_2(state,isMaximumPlayer)
+
+
+
+    def _get_possible_mil(self, state, isMaximumPlayer):
+
+        if isMaximumPlayer:
+            for
+
+        rival_cell = self._choose_cell_to_kill(state, isMaximumPlayer)
         rival_idx = np.where(self.rival_pos == rival_cell)[0][0]
         if isMaximumPlayer:
             self.rival_pos[rival_idx] = -2
