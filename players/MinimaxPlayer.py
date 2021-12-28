@@ -36,7 +36,7 @@ class Player(AbstractPlayer):
 
         return rival_cells[rival_cell_idx]
 
-    """""
+
 
     def _get_states_from_mill(self,last_placement, soldier_to_place, turn, board, attacker_soldiers, attacked_soldiers):
         for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
@@ -46,19 +46,26 @@ class Player(AbstractPlayer):
             board[placement_player_to_remove] = 0
             last_move = (last_placement, soldier_to_place, placement_player_to_remove)
             yield State(attacker_soldiers, attacked_soldiers, board, last_move, turn + 1)
-    """""
+
+    def _get_info_from_mill(self, attacked_soldiers):
+        for index_soldier_to_remove, placement_soldier_to_remove in enumerate(attacked_soldiers):
+            if placement_soldier_to_remove == -1:
+                continue
+            yield index_soldier_to_remove, placement_soldier_to_remove
 
 
     def _get_succ_stage_1(self, state : State ,isMaximumPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
-        copy_board = state.board_state.copy()
+        board_copy = state.board_state.copy()
         for placement in np.where(self.board >0)[0]:
             if isMaximumPlayer:
-                copy_board[placement] = 1
+                board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 my_pos_copy[pos_index] = placement
-                if self.is_mill(placement):
+                if self.is_mill(placement,board_copy):
+                    self._get_states_from_mill(placement,pos_index,state.turn,board_copy,my_pos_copy,rival_pos_copy)
+                    """""
                     for index_rival,rival_pos in enumerate(rival_pos_copy):
                         if rival_pos == -1:
                             continue
@@ -66,14 +73,17 @@ class Player(AbstractPlayer):
                         copy_board[rival_pos] = 0
                         last_move = (placement,pos_index,rival_pos)
                         yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
+                    """
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, copy_board, last_move, state.turn +1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn +1)
             else:
-                copy_board[placement] = 1
+                board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 rival_pos_copy[pos_index] = placement
-                if self.is_mill(placement):
+                if self.is_mill(placement,board_copy):
+                    self._get_states_from_mill(placement,pos_index,state.turn,board_copy,rival_pos_copy,my_pos_copy)
+                    """"
                     for index_player,player_pos in enumerate(my_pos_copy):
                         if player_pos == -1:
                             continue
@@ -81,16 +91,34 @@ class Player(AbstractPlayer):
                         copy_board[player_pos] = 0
                         last_move = (placement,pos_index,player_pos)
                         yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
+                    """
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, copy_board, last_move, state.turn +1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn +1)
+
+    def _get_succ_stage_2_helper(self,state: State, board, attacker_soldiers, attacked_soldiers ):
+        for index_soldier, placement_soldier in enumerate(attacker_soldiers):
+            if placement_soldier == -2:
+                continue
+            for direction in self._get_possible_movements(placement_soldier):
+                board[index_soldier] = 0
+                board[direction] = 1
+                if self.is_mill(direction, board):
+                    self._get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
+                                               attacker_soldiers, attacked_soldiers)
+                else:
+                    last_move = (placement_soldier, index_soldier, -1)
+                    yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
 
 
-    def _get_succ_stage_2(self, state : State ,isMaximumPlayer):
+    def _get_succ_stage_2(self, state : State, isMaximumPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
         board_copy = state.board_state.copy()
-
+        if isMaximumPlayer:
+            self._get_succ_stage_2_helper(state,board_copy,my_pos_copy,rival_pos_copy)
+        else:
+            self._get_succ_stage_2_helper(state,board_copy,rival_pos_copy,my_pos_copy)
 
 
     def _get_possible_movements(self, position, board):
@@ -99,28 +127,12 @@ class Player(AbstractPlayer):
 
 
 
-    def get_succ(self, state, isMaximumPlayer=True):
+    def get_succ(self, state,isMaximumPlayer=True):
         if self.turn < 18:
-            return self._get_succ_stage_1(state,isMaximumPlayer)
+            return self._get_succ_stage_1(state, isMaximumPlayer)
         else:
-            return self._get_succ_stage_2(state,isMaximumPlayer)
+            return self._get_succ_stage_2(state, isMaximumPlayer)
 
-
-
-    def _get_possible_mil(self, state, isMaximumPlayer):
-
-        if isMaximumPlayer:
-            for
-
-        rival_cell = self._choose_cell_to_kill(state, isMaximumPlayer)
-        rival_idx = np.where(self.rival_pos == rival_cell)[0][0]
-        if isMaximumPlayer:
-            self.rival_pos[rival_idx] = -2
-            self.board[rival_cell] = 0
-        else:
-            state.my_pos[rival_idx] = -2
-            state.board[rival_cell] = 0
-        return rival_cell
 
     def _get_succ_states_stage1(self, state=None, isMaximumPlayer=True):
         if state == None:
