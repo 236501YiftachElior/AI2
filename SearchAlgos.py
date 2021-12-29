@@ -45,8 +45,11 @@ class MiniMax(SearchAlgos):
                    self.succ(state, maximizing_player)]
         utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
         if maximizing_player:
-            return np.max(utilities), directions[np.argmax(utilities)]
+            print("my directions", len(directions), directions)
+            return np.max(utilities), len(directions), directions[np.argmax(utilities)]
+        print("rival directions", len(directions), directions)
         return np.min(utilities), directions[np.argmin(utilities)]
+
     """
     alternative approach of minimax
     def _inner_search(self, state: State, depth, maximizing_player):
@@ -93,7 +96,7 @@ class AlphaBeta(SearchAlgos):
         # TODO: erase the following line and implement this function.
         if depth == 0 or self.goal(state):
             return self.utility(state, self.goal(state), maximizing_player), state.last_move
-        current_choice, direction_choice = None, None
+        current_choice, direction_choice = -np.inf if maximizing_player else np.inf, None
         for successor_state in self.succ(state, maximizing_player):
             if maximizing_player:
                 utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)

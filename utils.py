@@ -9,23 +9,6 @@ ALPHA_VALUE_INIT = -np.inf
 BETA_VALUE_INIT = np.inf
 
 
-class Stage1State:
-    def __init__(self, soldiers_p1, soldiers_p2, placement,board_state):
-        self.soldiers_p1 = soldiers_p1
-        self.soldiers_p2 = soldiers_p2
-        self.placement = placement
-        self.board_state = board_state
-        self.board_state[placement]=1
-
-
-class Stage2State:
-    def __init__(self, soldiers_p1, soldiers_p2, current_loc, direction,board_state):
-        self.soldiers_p1 = soldiers_p1
-        self.soldiers_p2 = soldiers_p2
-        self.current_loc = current_loc
-        self.direction = direction
-        self.board_state = board_state
-
 class State:
     def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn):
         self.soldiers_p1 = soldiers_p1

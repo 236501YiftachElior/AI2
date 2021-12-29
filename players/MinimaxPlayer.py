@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import MiniMax
-from utils import Stage1State, Stage2State, _is_goal_state, State
+from utils import _is_goal_state, State
 import time
 
 
@@ -25,17 +25,18 @@ class Player(AbstractPlayer):
         self.turn = 0
 
     def _get_succ_stage_1(self, state: State, isMaximumPlayer):
-        my_pos_copy = state.soldiers_p1.copy()
-        rival_pos_copy = state.soldiers_p2.copy()
-        board_copy = state.board_state.copy()
-        for placement in np.where(self.board == 0)[0]:
+        for placement in np.where(state.board_state == 0)[0]:
+            my_pos_copy = state.soldiers_p1.copy()
+            rival_pos_copy = state.soldiers_p2.copy()
+            board_copy = state.board_state.copy()
             if isMaximumPlayer:
                 board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 my_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
-                    return _get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
-                                                 rival_pos_copy)
+                    for state in _get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
+                                                 rival_pos_copy):
+                        yield state
                 else:
                     last_move = (placement, pos_index, -1)
                     yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
@@ -105,7 +106,7 @@ class Player(AbstractPlayer):
         output:
             - direction: tuple, specifing the Player's movement
         """
-        depth = 1
+        depth = 3
         time_remaining = time_limit
         while True:
             start = time.time()
@@ -144,7 +145,7 @@ class Player(AbstractPlayer):
             self.my_pos[dead_soldier] = -2
         self.turn += 1
 
-    def _heuristic(self, state: Stage1State):
+    def _heuristic(self, state: State):
         # todo: add actual heuristic
         return 1
 
