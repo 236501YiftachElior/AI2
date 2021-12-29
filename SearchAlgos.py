@@ -31,7 +31,7 @@ class SearchAlgos:
 
 class MiniMax(SearchAlgos):
 
-    def search(self, state:State, depth, maximizing_player):
+    def search(self, state: State, depth, maximizing_player):
         """Start the MiniMax algorithm.
         :param state: The state to start from.
         :param depth: The maximum allowed depth for the algorithm.
@@ -41,7 +41,8 @@ class MiniMax(SearchAlgos):
         # TODO: erase the following line and implement this function.
         if depth == 0 or self.goal(state):
             return self.utility(state, self.goal(state), maximizing_player), state.last_move
-        options = [self.search(state, depth - 1, not maximizing_player) for state in self.succ(state)]
+        options = [self.search(state, depth - 1, not maximizing_player) for state in
+                   self.succ(state, maximizing_player)]
         utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
         if maximizing_player:
             return np.max(utilities), directions[np.argmax(utilities)]
