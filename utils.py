@@ -35,6 +35,7 @@ class State:
         self.turn = turn
 
 
+
 def get_directions(position):
     """Returns all the possible directions of a player in the game as a list.
     """

@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import MiniMax
-from utils import Stage1State, Stage2State, _is_goal_state , State
+from utils import Stage1State, Stage2State, _is_goal_state, State
 import time
 
 
@@ -15,30 +15,17 @@ class Player(AbstractPlayer):
         self.board = None
         self.game_time = game_time
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
-        self.minimax_stage1 = MiniMax(_construct_minimax_player_utility(self._heuristic), self._get_succ_states_stage1,
-                                      None,
-                                      _is_goal_state)
-        self.minimax_stage2 = MiniMax(_construct_minimax_player_utility(self._heuristic), self._get_succ_states_stage2,
-                                      None,
-                                      _is_goal_state)
+        self.minimax = MiniMax(_construct_minimax_player_utility(self._heuristic), self.get_succ,
+                               None,
+                               _is_goal_state)
 
         self.board = None  # and add two more fields to Player
         self.my_pos = None
         self.rival_pos = None
         self.turn = 0
 
-    def _kill_by_heuristic(self,rival_cells:np.ndarray, state, isMaximumPlayer):
-        return rival_cells[0]
-
-    def _choose_cell_to_kill(self,state,isMaximumPlayer):
-        rival_cells = np.where(self.board == 2)[0]
-        rival_cell_idx = np.argmax(self._kill_by_heuristic(np.where(self.board == 2)[0],state,isMaximumPlayer))
-
-        return rival_cells[rival_cell_idx]
-
-
-
-    def _get_states_from_mill(self,last_placement, soldier_to_place, turn, board, attacker_soldiers, attacked_soldiers):
+    def _get_states_from_mill(self, last_placement, soldier_to_place, turn, board, attacker_soldiers,
+                              attacked_soldiers):
         for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
             if placement_player_to_remove == -1:
                 continue
@@ -53,50 +40,33 @@ class Player(AbstractPlayer):
                 continue
             yield index_soldier_to_remove, placement_soldier_to_remove
 
-
-    def _get_succ_stage_1(self, state : State ,isMaximumPlayer):
+    def _get_succ_stage_1(self, state: State, isMaximumPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
         board_copy = state.board_state.copy()
-        for placement in np.where(self.board >0)[0]:
+        for placement in np.where(self.board > 0)[0]:
             if isMaximumPlayer:
                 board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 my_pos_copy[pos_index] = placement
-                if self.is_mill(placement,board_copy):
-                    self._get_states_from_mill(placement,pos_index,state.turn,board_copy,my_pos_copy,rival_pos_copy)
-                    """""
-                    for index_rival,rival_pos in enumerate(rival_pos_copy):
-                        if rival_pos == -1:
-                            continue
-                        rival_pos_copy[index_rival] = -2
-                        copy_board[rival_pos] = 0
-                        last_move = (placement,pos_index,rival_pos)
-                        yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
-                    """
+                if self.is_mill(placement, board_copy):
+                    return self._get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
+                                                      rival_pos_copy)
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn +1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
             else:
                 board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 rival_pos_copy[pos_index] = placement
-                if self.is_mill(placement,board_copy):
-                    self._get_states_from_mill(placement,pos_index,state.turn,board_copy,rival_pos_copy,my_pos_copy)
-                    """"
-                    for index_player,player_pos in enumerate(my_pos_copy):
-                        if player_pos == -1:
-                            continue
-                        my_pos_copy[index_player] = -2
-                        copy_board[player_pos] = 0
-                        last_move = (placement,pos_index,player_pos)
-                        yield State(my_pos_copy,rival_pos_copy,copy_board,last_move,state.turn +1)
-                    """
+                if self.is_mill(placement, board_copy):
+                    return self._get_states_from_mill(placement, pos_index, state.turn, board_copy, rival_pos_copy,
+                                                      my_pos_copy)
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn +1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
 
-    def _get_succ_stage_2_helper(self,state: State, board, attacker_soldiers, attacked_soldiers ):
+    def _get_succ_stage_2_helper(self, state: State, board, attacker_soldiers, attacked_soldiers):
         for index_soldier, placement_soldier in enumerate(attacker_soldiers):
             if placement_soldier == -2:
                 continue
@@ -110,66 +80,24 @@ class Player(AbstractPlayer):
                     last_move = (placement_soldier, index_soldier, -1)
                     yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
 
-
-    def _get_succ_stage_2(self, state : State, isMaximumPlayer):
+    def _get_succ_stage_2(self, state: State, isMaximumPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
         board_copy = state.board_state.copy()
         if isMaximumPlayer:
-            self._get_succ_stage_2_helper(state,board_copy,my_pos_copy,rival_pos_copy)
+            return self._get_succ_stage_2_helper(state, board_copy, my_pos_copy, rival_pos_copy)
         else:
-            self._get_succ_stage_2_helper(state,board_copy,rival_pos_copy,my_pos_copy)
-
+            return self._get_succ_stage_2_helper(state, board_copy, rival_pos_copy, my_pos_copy)
 
     def _get_possible_movements(self, position, board):
         directions = np.array(self.directions[position])
-        return directions[np.argwhere(board[np.array(directions)]==0)].squeeze(1)
+        return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
 
-
-
-    def get_succ(self, state,isMaximumPlayer=True):
+    def get_succ(self, state, isMaximumPlayer=True):
         if self.turn < 18:
             return self._get_succ_stage_1(state, isMaximumPlayer)
         else:
             return self._get_succ_stage_2(state, isMaximumPlayer)
-
-
-    def _get_succ_states_stage1(self, state=None, isMaximumPlayer=True):
-        if state == None:
-            my_pos_copy = self.my_pos.copy()
-            rival_pos_copy = self.rival_pos.copy()
-            copy_board = self.board.copy()
-
-        else:
-            my_pos_copy = state.my_pos.copy()
-            rival_pos_copy = state.rival_pos.copy()
-            copy_board = state.board.copy()
-
-        for placement in self.board:
-            if placement == 0:
-                continue
-            if isMaximumPlayer:
-                my_soldier_that_moved = int(
-                    np.random.choice(np.where(my_pos_copy == -1)[0], 1)[0])  # choose random soldier
-                my_pos_copy[my_soldier_that_moved] = placement
-                rival_cell = -1 if not self.is_mill(placement) else self._make_mill_get_cell(state,isMaximumPlayer)
-            else:
-                rival_soldier_that_moved = int(
-                    np.random.choice(np.where(rival_pos_copy == -1)[0], 1)[0])  # choose random soldier
-                rival_pos_copy[rival_soldier_that_moved] = placement
-                my_cell =  -1 if not self.is_mill(placement) else self._make_mill_get_cell(state,isMaximumPlayer)
-
-            copy_board[placement] = 1 if isMaximumPlayer else 2
-            yield Stage1State(my_pos_copy, rival_pos_copy, placement, copy_board)
-
-    def _get_succ_states_stage2(self, state, isMaximumPlayer):
-        if isMaximumPlayer:
-            my_pos_copy = state.my_pos.copy()
-        else:
-            rival_pos_copy = state.rival_pos.copy()
-
-        return [Stage2State(my_soldiers_count, rival_soldiers_count, position, self.directions(position), self.board)
-                for position in self.my_pos if position > 0]
 
     def set_game_params(self, board):
         """Set the game parameters needed for this player.
@@ -193,21 +121,12 @@ class Player(AbstractPlayer):
         output:
             - direction: tuple, specifing the Player's movement
         """
-        if self.turn < 18:
-            move = self._stage_1_move(time_limit)
-            self.turn += 1
-            return move
-        else:
-            move = self._stage_2_move(time_limit)
-            self.turn += 1
-            return move
-
-    def _execute_strategy_till_time(self, minimax_stage_search, time_limit):
         depth = 1
         time_remaining = time_limit
         while True:
             start = time.time()
-            _, position, soldier, rival_cell_killed = minimax_stage_search.search(None, depth, True)
+            start_state = State(self.my_pos,self.rival_pos,self.board,None,self.turn)
+            _, position, soldier, rival_cell_killed = self.minimax.search(start_state, depth, True)
             end = time.time()
             interval = end - start
             time_remaining = time_remaining - interval
@@ -216,18 +135,7 @@ class Player(AbstractPlayer):
             depth = depth + 1
         return position, soldier, rival_cell_killed
 
-    # TODO: update this shit
-    def _stage_1_move(self, time_limit):
-        position, soldier, rival_cell_killed = self._execute_strategy_till_time(self.minimax_stage1, time_limit)
-        self.my_pos[soldier] = position
-        self.board[position] = 1
-        return position, soldier, rival_cell_killed
-
-    def _stage_2_move(self, time_limit):
-        position, soldier, rival_cell_killed = self._execute_strategy_till_time(self.minimax_stage2, time_limit)
-        self.my_pos[soldier] = position
-        self.board[position] = 1
-        return position, soldier, rival_cell_killed
+    def _execute_strategy_till_time(self, minimax_stage_search, time_limit):
 
     def set_rival_move(self, move):
         """Update your info, given the new position of the rival.
@@ -256,8 +164,8 @@ class Player(AbstractPlayer):
 
     def _heuristic(self, state: Stage1State):
         # todo: add actual heuristic
-
         return 1
+
 
 def _construct_minimax_player_utility(heuristic):
     def _minimax_utility_func(state, goal, maximizing_player):
