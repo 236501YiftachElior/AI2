@@ -112,6 +112,9 @@ def printBoard(board):
     print("\n")
 
 
-def _is_goal_state(state):
-    return state.soldier_p1 < 3 or state.soldiers_p2 < 3
+def _is_goal_state(state: State):
+    if state.turn >= 18:
+        return state.soldiers_p1[state.soldiers_p1 != -2].size < 3 or state.soldiers_p2[state.soldiers_p2 != -2].size < 3
+    return False
+
 

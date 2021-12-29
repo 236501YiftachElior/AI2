@@ -47,6 +47,36 @@ class MiniMax(SearchAlgos):
         if maximizing_player:
             return np.max(utilities), directions[np.argmax(utilities)]
         return np.min(utilities), directions[np.argmin(utilities)]
+    """
+    alternative approach of minimax
+    def _inner_search(self, state: State, depth, maximizing_player):
+        if depth == 0 or self.goal(state):
+            return self.utility(state, self.goal(state), maximizing_player), state.last_move
+        options = self.succ(state, maximizing_player)
+        if maximizing_player:
+            currMax = -np.inf
+            for option in options:
+                v = self.search(option,depth-1,not maximizing_player)
+                currMax = max(v,currMax)
+            return currMax
+        else:
+            currMin = np.inf
+            for option in options:
+                v = self.search(option,depth-1,not maximizing_player)
+                currMin = min(v,currMin)
+            return currMin
+
+    def alternative_search(self, state: State, depth, maximizing_player):
+        currMax = -np.inf
+        options = self.succ(state, True)
+        best_move = ()
+        for option in options:
+            v = self.search(option,depth-1, False)
+            if v > currMax:
+                currMax = v
+                best_move = option.last_move
+        return currMax, best_move
+    """
 
 
 class AlphaBeta(SearchAlgos):

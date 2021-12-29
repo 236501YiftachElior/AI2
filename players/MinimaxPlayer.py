@@ -28,7 +28,7 @@ class Player(AbstractPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
         board_copy = state.board_state.copy()
-        for placement in np.where(self.board > 0)[0]:
+        for placement in np.where(self.board == 0)[0]:
             if isMaximumPlayer:
                 board_copy[placement] = 1
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
@@ -110,7 +110,7 @@ class Player(AbstractPlayer):
         while True:
             start = time.time()
             start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn)
-            _, position, soldier, rival_cell_killed = self.minimax.search(start_state, depth, True)
+            _, (position, soldier, rival_cell_killed) = self.minimax.search(start_state, depth, True)
             end = time.time()
             interval = end - start
             time_remaining = time_remaining - interval
