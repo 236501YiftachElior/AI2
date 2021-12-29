@@ -41,7 +41,7 @@ class MiniMax(SearchAlgos):
         # TODO: erase the following line and implement this function.
         if depth == 0 or self.goal(state):
             return self.utility(state, self.goal(state), maximizing_player), state.last_move
-        options = [self.search(state, depth - 1, not maximizing_player) for state in
+        options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
                    self.succ(state, maximizing_player)]
         utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
         if maximizing_player:
@@ -61,4 +61,29 @@ class AlphaBeta(SearchAlgos):
         :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
         """
         # TODO: erase the following line and implement this function.
-        raise NotImplementedError
+        if depth == 0 or self.goal(state):
+            return self.utility(state, self.goal(state), maximizing_player), state.last_move
+        current_choice, direction_choice = None, None
+        for successor_state in self.succ(state, maximizing_player):
+            if maximizing_player:
+                utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                current_choice = np.max(utility, current_choice)
+                direction_choice = direction if current_choice == utility else direction_choice
+                if current_choice >= beta:
+                    return current_choice, direction_choice
+                alpha = max(alpha, current_choice)
+            else:
+                utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                current_choice = np.min(utility, current_choice)
+                direction_choice = direction if current_choice == utility else direction_choice
+                if current_choice <= alpha:
+                    return current_choice, direction_choice
+                beta = min(beta, current_choice)
+        return current_choice, direction_choice
+        #
+        # options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
+        #            self.succ(state, maximizing_player)]
+        # utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
+        # if maximizing_player:
+        #     return np.max(utilities), directions[np.argmax(utilities)]
+        # return np.min(utilities), directions[np.argmin(utilities)]

@@ -24,22 +24,6 @@ class Player(AbstractPlayer):
         self.rival_pos = None
         self.turn = 0
 
-    def _get_states_from_mill(self, last_placement, soldier_to_place, turn, board, attacker_soldiers,
-                              attacked_soldiers):
-        for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
-            if placement_player_to_remove == -1:
-                continue
-            attacked_soldiers[index_player_to_remove] = -2
-            board[placement_player_to_remove] = 0
-            last_move = (last_placement, soldier_to_place, placement_player_to_remove)
-            yield State(attacker_soldiers, attacked_soldiers, board, last_move, turn + 1)
-
-    def _get_info_from_mill(self, attacked_soldiers):
-        for index_soldier_to_remove, placement_soldier_to_remove in enumerate(attacked_soldiers):
-            if placement_soldier_to_remove == -1:
-                continue
-            yield index_soldier_to_remove, placement_soldier_to_remove
-
     def _get_succ_stage_1(self, state: State, isMaximumPlayer):
         my_pos_copy = state.soldiers_p1.copy()
         rival_pos_copy = state.soldiers_p2.copy()
@@ -50,8 +34,8 @@ class Player(AbstractPlayer):
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 my_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
-                    return self._get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
-                                                      rival_pos_copy)
+                    return _get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
+                                                 rival_pos_copy)
                 else:
                     last_move = (placement, pos_index, -1)
                     yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
@@ -60,8 +44,8 @@ class Player(AbstractPlayer):
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 rival_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
-                    return self._get_states_from_mill(placement, pos_index, state.turn, board_copy, rival_pos_copy,
-                                                      my_pos_copy)
+                    return _get_states_from_mill(placement, pos_index, state.turn, board_copy, rival_pos_copy,
+                                                 my_pos_copy)
                 else:
                     last_move = (placement, pos_index, -1)
                     yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
@@ -74,8 +58,8 @@ class Player(AbstractPlayer):
                 board[index_soldier] = 0
                 board[direction] = 1
                 if self.is_mill(direction, board):
-                    self._get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
-                                               attacker_soldiers, attacked_soldiers)
+                    _get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
+                                          attacker_soldiers, attacked_soldiers)
                 else:
                     last_move = (placement_soldier, index_soldier, -1)
                     yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
@@ -125,7 +109,7 @@ class Player(AbstractPlayer):
         time_remaining = time_limit
         while True:
             start = time.time()
-            start_state = State(self.my_pos,self.rival_pos,self.board,None,self.turn)
+            start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn)
             _, position, soldier, rival_cell_killed = self.minimax.search(start_state, depth, True)
             end = time.time()
             interval = end - start
@@ -134,8 +118,6 @@ class Player(AbstractPlayer):
                 break
             depth = depth + 1
         return position, soldier, rival_cell_killed
-
-    def _execute_strategy_till_time(self, minimax_stage_search, time_limit):
 
     def set_rival_move(self, move):
         """Update your info, given the new position of the rival.
@@ -175,6 +157,24 @@ def _construct_minimax_player_utility(heuristic):
             return heuristic(state)
 
     return _minimax_utility_func
+
+
+def _get_states_from_mill(last_placement, soldier_to_place, turn, board, attacker_soldiers,
+                          attacked_soldiers):
+    for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
+        if placement_player_to_remove == -1:
+            continue
+        attacked_soldiers[index_player_to_remove] = -2
+        board[placement_player_to_remove] = 0
+        last_move = (last_placement, soldier_to_place, placement_player_to_remove)
+        yield State(attacker_soldiers, attacked_soldiers, board, last_move, turn + 1)
+
+
+def _get_info_from_mill(attacked_soldiers):
+    for index_soldier_to_remove, placement_soldier_to_remove in enumerate(attacked_soldiers):
+        if placement_soldier_to_remove == -1:
+            continue
+        yield index_soldier_to_remove, placement_soldier_to_remove
 
     ########## helper functions in class ##########
     # TODO: add here helper functions in class, if needed
