@@ -54,6 +54,29 @@ def get_directions(position):
     return adjacent[position]
 
 
+def get_possible_mills():
+    possible_mills = [
+        [0, 1, 2],
+        [0, 3, 5],
+        [1, 9, 17],
+        [2, 4, 7],
+        [3, 11, 19],
+        [4, 12, 20],
+        [5, 6, 7],
+        [6, 14, 22],
+        [8, 9, 10],
+        [8, 11, 13],
+        [10, 12, 15],
+        [13, 14, 15],
+        [16, 17, 18],
+        [16, 19, 21],
+        [18, 20, 23],
+        [21, 22, 23]
+
+    ]
+    return possible_mills
+
+
 def tup_add(t1, t2):
     """
     returns the sum of two tuples as tuple.

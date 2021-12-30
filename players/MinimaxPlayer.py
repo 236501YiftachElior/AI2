@@ -178,7 +178,8 @@ class Player(AbstractPlayer):
         self.turn += 1
 
     def _heuristic(self, state: State):
-        # todo: add actual heuristic
+
+
         return 1
 
 
