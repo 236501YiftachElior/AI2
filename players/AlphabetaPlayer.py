@@ -179,13 +179,13 @@ class Player(AbstractPlayer):
 
     def _heuristic(self, state: State):
         # todo: add actual heuristic
-        return 1
+        return 1.0
 
 
 def _construct_minimax_player_utility(heuristic):
     def _minimax_utility_func(state, goal, maximizing_player):
         if goal:
-            return 1 if maximizing_player else -1
+            return 1.0 if maximizing_player else -1.0
         else:
             return heuristic(state)
 

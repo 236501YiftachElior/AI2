@@ -99,23 +99,24 @@ class AlphaBeta(SearchAlgos):
         # TODO: erase the following line and implement this function.
         if depth == 0 or self.goal(state):
             return self.utility(state, self.goal(state), maximizing_player), state.last_move
-        current_choice, direction_choice = -np.inf if maximizing_player else np.inf, None
+        current_choice, direction_move = -np.inf if maximizing_player else np.inf, None
         for successor_state in self.succ(state, maximizing_player):
             if maximizing_player:
-                utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
-                current_choice = np.max(utility, current_choice)
-                direction_choice = direction if current_choice == utility else direction_choice
-                if current_choice >= beta:
-                    return current_choice, direction_choice
+                utility, _ = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                current_choice = max(utility, current_choice)
+                direction_move = successor_state.last_move if current_choice == utility else direction_move
                 alpha = max(alpha, current_choice)
+                if current_choice >= beta:
+                    return current_choice, successor_state.last_move
+
             else:
                 utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
-                current_choice = np.min(utility, current_choice)
-                direction_choice = direction if current_choice == utility else direction_choice
-                if current_choice <= alpha:
-                    return current_choice, direction_choice
+                current_choice = min(utility, current_choice)
+                direction_move = successor_state.last_move if current_choice == utility else direction_move
                 beta = min(beta, current_choice)
-        return current_choice, direction_choice
+                if current_choice <= alpha:
+                    return current_choice, successor_state.last_move
+        return current_choice, direction_move
         #
         # options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
         #            self.succ(state, maximizing_player)]
