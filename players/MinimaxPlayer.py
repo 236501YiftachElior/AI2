@@ -29,7 +29,6 @@ class Player(AbstractPlayer):
     def _get_succ_stage_1(self, state: State, isMaximumPlayer):
         for placement in np.where(state.board_state == 0)[0]:
             state_copy = state.copy()
-
             my_pos_copy = state_copy.my_pos
             rival_pos_copy = state_copy.rival_pos
             board_copy = state_copy.board_state
@@ -60,32 +59,50 @@ class Player(AbstractPlayer):
                     yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
 
     # TODO broken
-    def _get_succ_stage_2_helper(self, state: State, board, attacker_soldiers, attacked_soldiers, isMaximumPlayer):
-        for index_soldier, placement_soldier in enumerate(attacker_soldiers):
-            if placement_soldier == -2:
-                continue
-            for direction in self._get_possible_movements(placement_soldier):
-                board[index_soldier] = 0
-                board[direction] = 1
-                if self.is_mill(direction, board):
-                    for state in _get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
-                                                       attacker_soldiers, attacked_soldiers):
-                        yield state
-                else:
-                    last_move = (placement_soldier, index_soldier, -1)
-                    yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
-
     def _get_succ_stage_2(self, state: State, isMaximumPlayer):
-        my_pos_copy = state.my_pos.copy()
-        rival_pos_copy = state.rival_pos.copy()
-        board_copy = state.board_state.copy()
+
         if isMaximumPlayer:
-            return self._get_succ_stage_2_helper(state, board_copy, my_pos_copy, rival_pos_copy, isMaximumPlayer)
+            for index_soldier, placement_soldier in enumerate(state.my_pos):
+                state_copy = state.copy()
+                my_pos_copy = state_copy.my_pos
+                rival_pos_copy = state_copy.rival_pos
+                board_copy = state_copy.board_state
+                if placement_soldier == -2:
+                    continue
+                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                    board_copy[placement_soldier] = 0
+                    my_pos_copy[index_soldier] = direction
+                    board_copy[direction] = 1
+                    if self.is_mill(direction, board_copy):
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                                                        rival_pos_copy, isMaximumPlayer):
+                            yield st
+                    else:
+                        last_move = (direction, index_soldier, -1)
+                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
         else:
-            return self._get_succ_stage_2_helper(state, board_copy, rival_pos_copy, my_pos_copy, isMaximumPlayer)
+            for index_soldier, placement_soldier in enumerate(state.rival_pos):
+                state_copy = state.copy()
+                my_pos_copy = state_copy.my_pos
+                rival_pos_copy = state_copy.rival_pos
+                board_copy = state_copy.board_state
+                if placement_soldier == -2:
+                    continue
+                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                    board_copy[placement_soldier] = 0
+                    rival_pos_copy[index_soldier] = direction
+                    board_copy[direction] = 2
+                    if self.is_mill(direction, board_copy):
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                                                        rival_pos_copy, isMaximumPlayer):
+                            yield st
+                    else:
+                        last_move = (direction, index_soldier, -1)
+                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
+
 
     def _get_possible_movements(self, position, board):
-        directions = np.array(self.directions[position])
+        directions = np.array(self.directions(position))
         return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
 
     def get_succ(self, state, isMaximumPlayer=True):
