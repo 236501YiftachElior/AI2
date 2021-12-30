@@ -35,7 +35,7 @@ class Player(AbstractPlayer):
                 my_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
                     for state in _get_states_from_mill(placement, pos_index, state.turn, board_copy, my_pos_copy,
-                                                 rival_pos_copy):
+                                                       rival_pos_copy):
                         yield state
                 else:
                     last_move = (placement, pos_index, -1)
@@ -45,8 +45,9 @@ class Player(AbstractPlayer):
                 pos_index = np.argwhere(my_pos_copy == -1)[0][0]
                 rival_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
-                    return _get_states_from_mill(placement, pos_index, state.turn, board_copy, rival_pos_copy,
-                                                 my_pos_copy)
+                    for state in _get_states_from_mill(placement, pos_index, state.turn, board_copy, rival_pos_copy,
+                                                       my_pos_copy):
+                        yield state
                 else:
                     last_move = (placement, pos_index, -1)
                     yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state.turn + 1)
@@ -59,8 +60,9 @@ class Player(AbstractPlayer):
                 board[index_soldier] = 0
                 board[direction] = 1
                 if self.is_mill(direction, board):
-                    _get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
-                                          attacker_soldiers, attacked_soldiers)
+                    for state in _get_states_from_mill(placement_soldier, index_soldier, state.turn, board,
+                                                       attacker_soldiers, attacked_soldiers):
+                        yield state
                 else:
                     last_move = (placement_soldier, index_soldier, -1)
                     yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
