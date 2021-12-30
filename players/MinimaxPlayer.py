@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import MiniMax
-from utils import _is_goal_state, State
+from utils import _is_goal_state, State, get_possible_mills
 import time
 
 
@@ -40,7 +40,7 @@ class Player(AbstractPlayer):
                 my_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
                     for st in _get_states_from_mill(placement, pos_index, state_copy.turn, board_copy, my_pos_copy,
-                                                       rival_pos_copy, isMaximumPlayer):
+                                                    rival_pos_copy, isMaximumPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
@@ -52,7 +52,7 @@ class Player(AbstractPlayer):
                 rival_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
                     for st in _get_states_from_mill(placement, pos_index, state_copy.turn, board_copy, my_pos_copy,
-                                                       rival_pos_copy, isMaximumPlayer):
+                                                    rival_pos_copy, isMaximumPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
@@ -69,12 +69,13 @@ class Player(AbstractPlayer):
                 board_copy = state_copy.board_state
                 if placement_soldier == -2:
                     continue
-                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                for direction in self._get_possible_movements(placement_soldier, board_copy):
                     board_copy[placement_soldier] = 0
                     my_pos_copy[index_soldier] = direction
                     board_copy[direction] = 1
                     if self.is_mill(direction, board_copy):
-                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy,
+                                                        my_pos_copy,
                                                         rival_pos_copy, isMaximumPlayer):
                             yield st
                     else:
@@ -88,18 +89,18 @@ class Player(AbstractPlayer):
                 board_copy = state_copy.board_state
                 if placement_soldier == -2:
                     continue
-                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                for direction in self._get_possible_movements(placement_soldier, board_copy):
                     board_copy[placement_soldier] = 0
                     rival_pos_copy[index_soldier] = direction
                     board_copy[direction] = 2
                     if self.is_mill(direction, board_copy):
-                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy,
+                                                        my_pos_copy,
                                                         rival_pos_copy, isMaximumPlayer):
                             yield st
                     else:
                         last_move = (direction, index_soldier, -1)
                         yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
-
 
     def _get_possible_movements(self, position, board):
         directions = np.array(self.directions(position))
@@ -178,9 +179,16 @@ class Player(AbstractPlayer):
         self.turn += 1
 
     def _heuristic(self, state: State):
-
-
-        return 1
+        possible_mills = get_possible_mills()
+        scores = np.zeros((len(possible_mills), 3))
+        total_score = 0
+        for mill_index, mill in enumerate(possible_mills):
+            for placement in mill:
+                if state.board_state[placement] >= 0:
+                    scores[mill_index, int(state.board_state[placement])] = scores[
+                                                                           mill_index, int(state.board_state[placement])] + 1
+            total_score += 1 if scores[mill_index, 1] == 2 else -1 if scores[mill_index, 2] == 2 else 0
+        return total_score / len(possible_mills)
 
 
 def _construct_minimax_player_utility(heuristic):
