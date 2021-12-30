@@ -25,8 +25,8 @@ class Player(AbstractPlayer):
         self.turn = 0
 
     def _get_succ_stage_1(self, state: State, isMaximumPlayer):
-        my_pos_copy = state.soldiers_p1.copy()
-        rival_pos_copy = state.soldiers_p2.copy()
+        my_pos_copy = state.my_pos.copy()
+        rival_pos_copy = state.rival_pos.copy()
         board_copy = state.board_state.copy()
         for placement in np.where(self.board > 0)[0]:
             if isMaximumPlayer:
@@ -65,8 +65,8 @@ class Player(AbstractPlayer):
                     yield State(attacker_soldiers, attacked_soldiers, board, last_move, state.turn + 1)
 
     def _get_succ_stage_2(self, state: State, isMaximumPlayer):
-        my_pos_copy = state.soldiers_p1.copy()
-        rival_pos_copy = state.soldiers_p2.copy()
+        my_pos_copy = state.my_pos.copy()
+        rival_pos_copy = state.rival_pos.copy()
         board_copy = state.board_state.copy()
         if isMaximumPlayer:
             return self._get_succ_stage_2_helper(state, board_copy, my_pos_copy, rival_pos_copy)

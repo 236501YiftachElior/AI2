@@ -40,17 +40,18 @@ class MiniMax(SearchAlgos):
         """
         # TODO: erase the following line and implement this function.
         if depth == 0 or self.goal(state):
-            print(state.last_move)
+            # print(state.last_move)
             return self.utility(state, self.goal(state), maximizing_player), state.last_move
+        successor_states = [successor_state for successor_state in self.succ(state, maximizing_player)]
         options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
-                   self.succ(state, maximizing_player)]
+                   successor_states]
         # print("my options" if maximizing_player else "rival options",options)
-        utilities, directions = np.array([utility for utility, _ in options]), [direction for _, direction in options]
+        utilities = np.array([utility for utility, _ in options])
         if maximizing_player:
             # print("my directions", len(directions), directions)
-            return np.max(utilities), len(directions), directions[np.argmax(utilities)]
+            return np.max(utilities), successor_states[np.argmax(utilities)].last_move
         # print("rival directions", len(directions), directions)
-        return np.min(utilities), directions[np.argmin(utilities)]
+        return np.min(utilities), successor_states[np.argmin(utilities)].last_move
 
     """
     alternative approach of minimax

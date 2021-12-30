@@ -11,12 +11,14 @@ BETA_VALUE_INIT = np.inf
 
 class State:
     def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn):
-        self.soldiers_p1 = soldiers_p1
-        self.soldiers_p2 = soldiers_p2
+        self.my_pos = soldiers_p1
+        self.rival_pos = soldiers_p2
         self.board_state = board_state
         self.last_move = last_move
         self.turn = turn
 
+    def copy(self):
+        return State(self.my_pos.copy(), self.rival_pos.copy(), self.board_state.copy(), self.last_move, self.turn)
 
 
 def get_directions(position):
@@ -97,7 +99,5 @@ def printBoard(board):
 
 def _is_goal_state(state: State):
     if state.turn >= 18:
-        return state.soldiers_p1[state.soldiers_p1 != -2].size < 3 or state.soldiers_p2[state.soldiers_p2 != -2].size < 3
+        return state.my_pos[state.my_pos != -2].size < 3 or state.rival_pos[state.rival_pos != -2].size < 3
     return False
-
-
