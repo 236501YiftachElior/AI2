@@ -107,7 +107,7 @@ class AlphaBeta(SearchAlgos):
                 direction_move = successor_state.last_move if current_choice == utility else direction_move
                 alpha = max(alpha, current_choice)
                 if current_choice >= beta:
-                    return current_choice, successor_state.last_move
+                    return np.inf, None
 
             else:
                 utility, direction = self.search(successor_state, depth - 1, not maximizing_player, alpha, beta)
@@ -115,7 +115,7 @@ class AlphaBeta(SearchAlgos):
                 direction_move = successor_state.last_move if current_choice == utility else direction_move
                 beta = min(beta, current_choice)
                 if current_choice <= alpha:
-                    return current_choice, successor_state.last_move
+                    return -np.inf, None
         return current_choice, direction_move
         #
         # options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
