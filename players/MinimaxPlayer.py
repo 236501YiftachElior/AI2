@@ -148,6 +148,10 @@ class Player(AbstractPlayer):
             depth = depth + 1
         if self.my_pos[soldier] != -1:
             self.board[self.my_pos[soldier]] = 0
+        if rival_cell_killed != -1:
+            rival_idx = np.where(self.rival_pos == rival_cell_killed)[0][0]
+            self.rival_pos[rival_idx] = -2
+            self.board[rival_cell_killed] = 0
         self.my_pos[soldier] = position
         self.board[position] = 1
         self.turn += 1

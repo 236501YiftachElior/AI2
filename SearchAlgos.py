@@ -45,6 +45,9 @@ class MiniMax(SearchAlgos):
         successor_states = [successor_state for successor_state in self.succ(state, maximizing_player)]
         options = [self.search(successor_state, depth - 1, not maximizing_player) for successor_state in
                    successor_states]
+        if len(options) == 0:
+            successor_states = [successor_state for successor_state in self.succ(state, maximizing_player)]
+
         # print("my options" if maximizing_player else "rival options",options)
         utilities = np.array([utility for utility, _ in options])
         if maximizing_player:

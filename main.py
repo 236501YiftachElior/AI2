@@ -50,5 +50,6 @@ if __name__ == "__main__":
                     time_to_make_a_move=args.move_time, 
                     game_time=game_time)
     # start playing!
-    game.run_game()
+    while(True):
+        game.run_game()
 

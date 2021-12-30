@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import AlphaBeta
-from utils import _is_goal_state, State
+from utils import _is_goal_state, State,get_possible_mills
 import time
 
 
@@ -147,6 +147,10 @@ class Player(AbstractPlayer):
             depth = depth + 1
         if self.my_pos[soldier] != -1:
             self.board[self.my_pos[soldier]] = 0
+        if rival_cell_killed != -1:
+            rival_idx = np.where(self.rival_pos == rival_cell_killed)[0][0]
+            self.rival_pos[rival_idx] = -2
+            self.board[rival_cell_killed] = 0
         self.my_pos[soldier] = position
         self.board[position] = 1
         self.turn += 1
@@ -178,8 +182,16 @@ class Player(AbstractPlayer):
         self.turn += 1
 
     def _heuristic(self, state: State):
-        # todo: add actual heuristic
-        return 1.0
+        possible_mills = get_possible_mills()
+        scores = np.zeros((len(possible_mills), 3))
+        total_score = 0
+        for mill_index, mill in enumerate(possible_mills):
+            for placement in mill:
+                if state.board_state[placement] >= 0:
+                    scores[mill_index, int(state.board_state[placement])] = scores[
+                                                                           mill_index, int(state.board_state[placement])] + 1
+            total_score += 1 if scores[mill_index, 1] == 2 else -1 if scores[mill_index, 2] == 2 else 0
+        return total_score / len(possible_mills)
 
 
 def _construct_minimax_player_utility(heuristic):
