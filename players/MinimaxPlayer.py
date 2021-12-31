@@ -200,7 +200,8 @@ def _construct_minimax_player_utility(heuristic):
         if goal:
             return 1 if maximizing_player else -1
         else:
-            return heuristic(state)
+            h = heuristic(state)
+            return h if maximizing_player else -h
 
     return _minimax_utility_func
 
@@ -212,7 +213,7 @@ def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos_
     else:
         attacked_soldiers = my_pos_copy
     for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
-        if placement_player_to_remove == -1:
+        if placement_player_to_remove < 0:
             continue
         attacked_soldiers[index_player_to_remove] = -2
         board[placement_player_to_remove] = 0

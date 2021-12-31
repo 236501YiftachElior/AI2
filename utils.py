@@ -119,8 +119,29 @@ def printBoard(board):
           "(07)")
     print("\n")
 
+def _get_possible_movements(position, board):
+    directions = np.array(get_directions(position))
+    return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
+
+def _is_player_blocked(state:State, isMaximumPlayer):
+    pos = state.my_pos if isMaximumPlayer else state.rival_pos
+    for index_soldier, placement_soldier in enumerate(pos):
+        if placement_soldier < 0:
+            continue
+        if len(_get_possible_movements(placement_soldier, state.board_state)) > 0:
+            return False
+    return True
+
+
 
 def _is_goal_state(state: State):
     if state.turn >= 18:
-        return state.my_pos[state.my_pos != -2].size < 3 or state.rival_pos[state.rival_pos != -2].size < 3
+        if state.my_pos[state.my_pos != -2].size < 3 or state.rival_pos[state.rival_pos != -2].size < 3:
+            return True
+        index_player = 0 if state.turn % 2 == 0 else 1
+        if _is_player_blocked(state,index_player):
+            return True
+
     return False
+
+

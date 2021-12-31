@@ -1,11 +1,11 @@
 """
-Alphabeta Player
+MiniMax Player
 """
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import AlphaBeta
-from utils import _is_goal_state, State,get_possible_mills
+from SearchAlgos import MiniMax,AlphaBeta
+from utils import _is_goal_state, State, get_possible_mills
 import time
 
 
@@ -40,7 +40,7 @@ class Player(AbstractPlayer):
                 my_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
                     for st in _get_states_from_mill(placement, pos_index, state_copy.turn, board_copy, my_pos_copy,
-                                                       rival_pos_copy, isMaximumPlayer):
+                                                    rival_pos_copy, isMaximumPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
@@ -52,7 +52,7 @@ class Player(AbstractPlayer):
                 rival_pos_copy[pos_index] = placement
                 if self.is_mill(placement, board_copy):
                     for st in _get_states_from_mill(placement, pos_index, state_copy.turn, board_copy, my_pos_copy,
-                                                       rival_pos_copy, isMaximumPlayer):
+                                                    rival_pos_copy, isMaximumPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
@@ -69,12 +69,13 @@ class Player(AbstractPlayer):
                 board_copy = state_copy.board_state
                 if placement_soldier == -2:
                     continue
-                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                for direction in self._get_possible_movements(placement_soldier, board_copy):
                     board_copy[placement_soldier] = 0
                     my_pos_copy[index_soldier] = direction
                     board_copy[direction] = 1
                     if self.is_mill(direction, board_copy):
-                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy,
+                                                        my_pos_copy,
                                                         rival_pos_copy, isMaximumPlayer):
                             yield st
                     else:
@@ -88,18 +89,18 @@ class Player(AbstractPlayer):
                 board_copy = state_copy.board_state
                 if placement_soldier == -2:
                     continue
-                for direction in self._get_possible_movements(placement_soldier,board_copy):
+                for direction in self._get_possible_movements(placement_soldier, board_copy):
                     board_copy[placement_soldier] = 0
                     rival_pos_copy[index_soldier] = direction
                     board_copy[direction] = 2
                     if self.is_mill(direction, board_copy):
-                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy, my_pos_copy,
+                        for st in _get_states_from_mill(direction, index_soldier, state_copy.turn, board_copy,
+                                                        my_pos_copy,
                                                         rival_pos_copy, isMaximumPlayer):
                             yield st
                     else:
                         last_move = (direction, index_soldier, -1)
                         yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
-
 
     def _get_possible_movements(self, position, board):
         directions = np.array(self.directions(position))
@@ -197,9 +198,10 @@ class Player(AbstractPlayer):
 def _construct_minimax_player_utility(heuristic):
     def _minimax_utility_func(state, goal, maximizing_player):
         if goal:
-            return 1.0 if maximizing_player else -1.0
+            return 1 if maximizing_player else -1
         else:
-            return heuristic(state)
+            h = heuristic(state)
+            return h if maximizing_player else -h
 
     return _minimax_utility_func
 
@@ -211,7 +213,7 @@ def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos_
     else:
         attacked_soldiers = my_pos_copy
     for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
-        if placement_player_to_remove == -1:
+        if placement_player_to_remove < 0:
             continue
         attacked_soldiers[index_player_to_remove] = -2
         board[placement_player_to_remove] = 0
