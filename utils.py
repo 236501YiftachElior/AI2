@@ -158,7 +158,7 @@ def _heuristic(state: State):
         state.my_pos)
     almost_mills, closed_mills = mills_metric_count()
     metric = (
-                         almost_mills + closed_mills + killing_score + 8 * blocked_opponent_pieces() + 10 * did_Close_Morris()) / 21
+            almost_mills + closed_mills + killing_score + 8 * blocked_opponent_pieces() + 10 * did_Close_Morris()) / 21
     assert metric < 1, f"illegal metric size, too positive, was {metric}"
     assert metric > -1, f"illegal metric size, too negative, was {metric}"
     # print(metric)
