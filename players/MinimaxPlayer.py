@@ -5,7 +5,7 @@ from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
 from SearchAlgos import MiniMax
-from utils import _is_goal_state, State, get_possible_mills
+from utils import _is_goal_state, State, _heuristic
 import time
 
 
@@ -17,7 +17,7 @@ class Player(AbstractPlayer):
         self.board = None
         self.game_time = game_time
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
-        self.minimax = MiniMax(_construct_minimax_player_utility(self._heuristic), self.get_succ,
+        self.minimax = MiniMax(_construct_minimax_player_utility(_heuristic), self.get_succ,
                                None,
                                _is_goal_state)
 
@@ -182,17 +182,7 @@ class Player(AbstractPlayer):
             self.my_pos[dead_soldier] = -2
         self.turn += 1
 
-    def _heuristic(self, state: State):
-        possible_mills = get_possible_mills()
-        scores = np.zeros((len(possible_mills), 3))
-        total_score = 0
-        for mill_index, mill in enumerate(possible_mills):
-            for placement in mill:
-                if state.board_state[placement] >= 0:
-                    scores[mill_index, int(state.board_state[placement])] = scores[
-                                                                           mill_index, int(state.board_state[placement])] + 1
-            total_score += 1 if scores[mill_index, 1] == 2 else -1 if scores[mill_index, 2] == 2 else 0
-        return total_score / len(possible_mills)
+
 
 
 def _construct_minimax_player_utility(heuristic):
@@ -200,8 +190,7 @@ def _construct_minimax_player_utility(heuristic):
         if goal:
             return 1 if maximizing_player else -1
         else:
-            h = heuristic(state)
-            return h if maximizing_player else -h
+            return heuristic(state)
 
     return _minimax_utility_func
 

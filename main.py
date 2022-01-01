@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument('-player1', default='AlphabetaPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
-    parser.add_argument('-player2', default='RandomPlayer',  type=str,
+    parser.add_argument('-player2', default='SimplePlayer',  type=str,
                         help='The type of the second player.',
                         choices=players_options)
     parser.add_argument('-move_time', default=10, type=float,
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # create game with the given args
     game = GameWrapper(player_1=player_1, player_2=player_2,players_positions=[np.full(9, -1),np.full(9, -1)],
-                    print_game_in_terminal=True,
+                    print_game_in_terminal=False,
                     time_to_make_a_move=args.move_time, 
                     game_time=game_time)
     # start playing!
