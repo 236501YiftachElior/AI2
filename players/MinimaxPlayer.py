@@ -4,13 +4,13 @@ MiniMax Player
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax
-from utils import _is_goal_state, State, _heuristic
+from SearchAlgos import MiniMax,AlphaBeta
+from utils import _is_goal_state, State, get_possible_mills, _heuristic
 import time
 
 
 class Player(AbstractPlayer):
-    branching_factor = 50
+    branching_factor = 25
 
     def __init__(self, game_time):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
@@ -44,7 +44,7 @@ class Player(AbstractPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1,isMaximumPlayer,False)
             else:
                 # print("rival pos copy is:",rival_pos_copy,"state turn is",state_copy.turn)
                 board_copy[placement] = 2
@@ -56,7 +56,7 @@ class Player(AbstractPlayer):
                         yield st
                 else:
                     last_move = (placement, pos_index, -1)
-                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
+                    yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1,isMaximumPlayer,False)
 
     # TODO broken
     def _get_succ_stage_2(self, state: State, isMaximumPlayer):
@@ -80,7 +80,7 @@ class Player(AbstractPlayer):
                             yield st
                     else:
                         last_move = (direction, index_soldier, -1)
-                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
+                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1,isMaximumPlayer,False)
         else:
             for index_soldier, placement_soldier in enumerate(state.rival_pos):
                 state_copy = state.copy()
@@ -100,7 +100,7 @@ class Player(AbstractPlayer):
                             yield st
                     else:
                         last_move = (direction, index_soldier, -1)
-                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1)
+                        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, state_copy.turn + 1,isMaximumPlayer,False)
 
     def _get_possible_movements(self, position, board):
         directions = np.array(self.directions(position))
@@ -138,7 +138,7 @@ class Player(AbstractPlayer):
         time_remaining = time_limit
         while True:
             start = time.time()
-            start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn)
+            start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn,True,False)
             _, (position, soldier, rival_cell_killed) = self.minimax.search(start_state, depth, True)
             end = time.time()
             interval = end - start
@@ -183,14 +183,13 @@ class Player(AbstractPlayer):
         self.turn += 1
 
 
-
-
 def _construct_minimax_player_utility(heuristic):
     def _minimax_utility_func(state, goal, maximizing_player):
         if goal:
             return 1 if maximizing_player else -1
         else:
-            return heuristic(state)
+            h = heuristic(state)
+            return h
 
     return _minimax_utility_func
 
@@ -207,7 +206,7 @@ def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos_
         attacked_soldiers[index_player_to_remove] = -2
         board[placement_player_to_remove] = 0
         last_move = (last_placement, soldier_to_place, placement_player_to_remove)
-        yield State(my_pos_copy, rival_pos_copy, board, last_move, turn + 1)
+        yield State(my_pos_copy, rival_pos_copy, board, last_move, turn + 1,isMaximumPlayer,True)
 
 
 def _get_info_from_mill(attacked_soldiers):

@@ -10,15 +10,18 @@ BETA_VALUE_INIT = np.inf
 
 
 class State:
-    def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn):
+    def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn, maximizingPlayer, didCloseMorris):
         self.my_pos = soldiers_p1
         self.rival_pos = soldiers_p2
         self.board_state = board_state
         self.last_move = last_move
         self.turn = turn
+        self.maximizingPlayer = maximizingPlayer
+        self.didCloseMorris = didCloseMorris
 
     def copy(self):
-        return State(self.my_pos.copy(), self.rival_pos.copy(), self.board_state.copy(), self.last_move, self.turn)
+        return State(self.my_pos.copy(), self.rival_pos.copy(), self.board_state.copy(), self.last_move, self.turn,
+                     self.maximizingPlayer, self.didCloseMorris)
 
 
 def get_directions(position):
@@ -120,6 +123,11 @@ def printBoard(board):
     print("\n")
 
 
+def _get_possible_movements(self, position, board):
+    directions = np.array(get_directions(position))
+    return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
+
+
 def _heuristic(state: State):
     def mills_metric_count():
         possible_mills = get_possible_mills()
@@ -133,26 +141,41 @@ def _heuristic(state: State):
                                                                                 mill_index, int(
                                                                                     state.board_state[placement])] + 1
             total_score_almost += 1 if scores[mill_index, 1] == 2 else -1 if scores[mill_index, 2] == 2 else 0
-            total_scores_closed +=1 if scores[mill_index, 1] == 3 else -1 if scores[mill_index, 2] == 3 else 0
-        return total_score_almost / len(possible_mills), total_scores_closed/len(possible_mills)
+            total_scores_closed += 1 if scores[mill_index, 1] == 3 else -1 if scores[mill_index, 2] == 3 else 0
+        return total_score_almost / len(possible_mills), total_scores_closed / len(possible_mills)
+
+    def blocked_opponent_pieces():
+        metric = 0
+        for rival_index in np.where(state.rival_pos >= 0)[0]:
+            if len(get_possible_movements(state.rival_pos[rival_index], state.board_state)) == 0:
+                metric += 1
+        return metric / len(state.rival_pos)
+
+    def did_Close_Morris():
+        return state.didCloseMorris
 
     killing_score = np.sum(state.rival_pos == -2) / len(state.rival_pos) - np.sum(state.my_pos == -2) / len(
         state.my_pos)
-    almost_mills,closed_mills=mills_metric_count()
-    return (almost_mills+closed_mills + killing_score) / 3
+    almost_mills, closed_mills = mills_metric_count()
+    metric = (
+                         almost_mills + closed_mills + killing_score + 8 * blocked_opponent_pieces() + 10 * did_Close_Morris()) / 21
+    assert metric < 1, f"illegal metric size, too positive, was {metric}"
+    assert metric > -1, f"illegal metric size, too negative, was {metric}"
+    # print(metric)
+    return metric
 
 
-def _get_possible_movements(position, board):
+def get_possible_movements(position, board):
     directions = np.array(get_directions(position))
     return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
 
 
-def _is_player_blocked(state: State, isMaximumPlayer):
-    pos = state.my_pos if isMaximumPlayer else state.rival_pos
+def _is_player_blocked(state: State):
+    pos = state.my_pos if state.maximizingPlayer else state.rival_pos
     for index_soldier, placement_soldier in enumerate(pos):
         if placement_soldier < 0:
             continue
-        if len(_get_possible_movements(placement_soldier, state.board_state)) > 0:
+        if len(get_possible_movements(placement_soldier, state.board_state)) > 0:
             return False
     return True
 
@@ -160,9 +183,7 @@ def _is_player_blocked(state: State, isMaximumPlayer):
 def _is_goal_state(state: State):
     if state.turn >= 18:
         if state.my_pos[state.my_pos != -2].size < 3 or state.rival_pos[state.rival_pos != -2].size < 3:
+            # print("i made it")
             return True
-        index_player = 0 if state.turn % 2 == 0 else 1
-        if _is_player_blocked(state, index_player):
-            return True
-
+        return _is_player_blocked(state)
     return False
