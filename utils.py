@@ -78,7 +78,23 @@ def get_possible_mills():
 
     ]
     return possible_mills
+def get_possible_double_morris():
+    double_mills = [
+        [0, 1, 2, 4, 7],
+        [2, 4, 7, 6, 5],
+        [7, 6, 5, 3, 0],
+        [5, 3, 0, 1, 2],
+        [8, 9, 10, 12, 15],
+        [10, 12, 15, 14, 13],
+        [15, 14, 13, 11, 8],
+        [13, 11, 8, 9, 10],
+        [16, 17, 18, 20, 23],
+        [18, 20, 23, 22, 21],
+        [23, 22, 21, 19, 16],
+        [21, 19, 16, 17, 18]
 
+    ]
+    return double_mills
 
 def tup_add(t1, t2):
     """
@@ -128,7 +144,7 @@ def _get_possible_movements(self, position, board):
     return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
 
 
-def _heuristic(state: State):
+def _heuristic(state: State, isMaximumPlayer):
     def mills_metric_count():
         possible_mills = get_possible_mills()
         scores = np.zeros((len(possible_mills), 3))
@@ -152,13 +168,32 @@ def _heuristic(state: State):
         return metric / len(state.rival_pos)
 
     def did_Close_Morris():
-        return state.didCloseMorris
+        return state.didCloseMorris if isMaximumPlayer else -state.didCloseMorris
+
+    def double_morris():
+        double_morris_options = get_possible_double_morris()
+        player_1_double_morris = 0
+        player_2_double_morris = 0
+        for double_morris in double_morris_options:
+            if state.board_state[double_morris[0]] == state.board_state[double_morris[1]] == \
+                    state.board_state[double_morris[2]] == state.board_state[double_morris[3]] == \
+                    state.board_state[double_morris[4]]:
+                player_1_double_morris = player_1_double_morris+1 if state.board_state[double_morris[0]]==1 \
+                    else player_1_double_morris
+                player_2_double_morris = player_2_double_morris + 1 if state.board_state[double_morris[0]] == 1\
+                    else player_2_double_morris
+        return player_1_double_morris - player_2_double_morris
+
+    def pieces_number():
+        return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0))/18
+
+
 
     killing_score = np.sum(state.rival_pos == -2) / len(state.rival_pos) - np.sum(state.my_pos == -2) / len(
         state.my_pos)
     almost_mills, closed_mills = mills_metric_count()
     metric = (
-            almost_mills + closed_mills + killing_score + 8 * blocked_opponent_pieces() + 10 * did_Close_Morris()) / 21
+             almost_mills + closed_mills + killing_score + 8 * blocked_opponent_pieces() + 10 * did_Close_Morris()) / 21
     assert metric < 1, f"illegal metric size, too positive, was {metric}"
     assert metric > -1, f"illegal metric size, too negative, was {metric}"
     # print(metric)
