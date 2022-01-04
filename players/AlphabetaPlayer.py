@@ -1,5 +1,5 @@
 """
-MiniMax Player
+Alphabeta Player
 """
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
@@ -136,6 +136,7 @@ class Player(AbstractPlayer):
         """
         depth = 1
         time_remaining = time_limit
+
         while True:
             start = time.time()
             start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn,True,False)
@@ -155,6 +156,7 @@ class Player(AbstractPlayer):
         self.my_pos[soldier] = position
         self.board[position] = 1
         self.turn += 1
+        self.game_time = self.game_time-time_remaining
         return position, soldier, rival_cell_killed
 
     def set_rival_move(self, move):

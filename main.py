@@ -10,15 +10,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('-player1', default='AlphabetaPlayer', type=str,
+    parser.add_argument('-player1', default='GlobalTimeABPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
     parser.add_argument('-player2', default='RandomPlayer',  type=str,
                         help='The type of the second player.',
                         choices=players_options)
-    parser.add_argument('-move_time', default=10, type=float,
+    parser.add_argument('-move_time', default=3000, type=float,
                         help='Time (sec) for each turn.')
-    parser.add_argument('-game_time', default=200000000, type=float,
+    parser.add_argument('-game_time', default=200, type=float,
                         help='Global game time (sec) for each player.')
     parser.add_argument('-terminal_viz', action='store_true',
                         help='Show game in terminal only.')
@@ -26,8 +26,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # check validity of game and turn times
-    if args.game_time < args.move_time:
-        raise Exception('Wrong time arguments.')
+    # if args.game_time < args.move_time:
+    #     raise Exception('Wrong time arguments.')
 
     # Players inherit from AbstractPlayer - this allows maximum flexibility and modularity
     player_1_type = 'players.' + args.player1
