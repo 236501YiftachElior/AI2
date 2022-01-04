@@ -198,7 +198,7 @@ def _construct_minimax_player_utility(heuristic):
         if goal:
             return 1 if maximizing_player else -1
         else:
-            h = heuristic(state)
+            h = heuristic(state,maximizing_player)
             return h
 
     return _minimax_utility_func
