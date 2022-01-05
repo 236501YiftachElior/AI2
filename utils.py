@@ -207,14 +207,14 @@ def _heuristic(state: State, isMaximumPlayer):
     almost_mills, closed_mills = mills_metric_count()
     if state.turn < 18:
         metric = (
-                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * almost_mills + 1 * closed_mills) / 6
+                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * almost_mills + 1 * closed_mills) / 7
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
                            f"almost_mills{almost_mills} closed_mills{closed_mills}"
     else:
         metric = (
-                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * double_morris()) / 5
+                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * double_morris()) / 6
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \

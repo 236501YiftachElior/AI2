@@ -139,7 +139,10 @@ class Player(AbstractPlayer):
         while True:
             start = time.time()
             start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn,True,False)
-            _, (position, soldier, rival_cell_killed) = self.minimax.search(start_state, depth, True)
+
+            utility, (position, soldier, rival_cell_killed) = self.minimax.search(start_state, depth, True)
+            if utility == 1 or utility == -1:
+                break
             end = time.time()
             interval = end - start
             time_remaining = time_remaining - interval

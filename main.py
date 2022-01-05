@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument('-player1', default='AlphabetaPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
-    parser.add_argument('-player2', default='MinimaxPlayer',  type=str,
+    parser.add_argument('-player2', default='RandomPlayer',  type=str,
                         help='The type of the second player.',
                         choices=players_options)
     parser.add_argument('-move_time', default=40, type=float,
