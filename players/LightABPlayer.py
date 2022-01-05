@@ -4,7 +4,7 @@ Alphabeta Player
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax,AlphaBeta
+from SearchAlgos import MiniMax,AlphaBeta,AlphaBetaLevel1
 from utils import _is_goal_state, State, get_possible_mills, _heuristic
 import time
 
@@ -18,7 +18,7 @@ class Player(AbstractPlayer):
         self.board = None
         self.game_time = game_time
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
-        self.minimax = AlphaBeta(simple_heuristic(), self.get_succ,
+        self.minimax = AlphaBetaLevel1(simple_heuristic(), self.get_succ,
                                None,
                                _is_goal_state)
 

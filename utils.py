@@ -179,7 +179,7 @@ def _heuristic(state: State, isMaximumPlayer):
         for my_index in np.where(state.my_pos >= 0)[0]:
             if len(get_possible_movements(state.my_pos[my_index], state.board_state)) == 0:
                 my_blocked += 1
-        return (my_blocked - rival_blocked) / 18
+        return (rival_blocked - my_blocked) / 18
 
     def did_Close_Morris():
         return state.didCloseMorris if isMaximumPlayer else -state.didCloseMorris
@@ -191,10 +191,10 @@ def _heuristic(state: State, isMaximumPlayer):
         for double_morris in double_morris_options:
             if state.board_state[double_morris[0]] == state.board_state[double_morris[1]] == \
                     state.board_state[double_morris[2]] == state.board_state[double_morris[3]] == \
-                    state.board_state[double_morris[4]]:
+                    state.board_state[double_morris[4]] != 0:
                 player_1_double_morris = player_1_double_morris + 1 if state.board_state[double_morris[0]] == 1 \
                     else player_1_double_morris
-                player_2_double_morris = player_2_double_morris + 1 if state.board_state[double_morris[0]] == 1 \
+                player_2_double_morris = player_2_double_morris + 1 if state.board_state[double_morris[0]] == 2 \
                     else player_2_double_morris
         double_morris_score = player_1_double_morris - player_2_double_morris
         return double_morris_score / 18
@@ -207,14 +207,14 @@ def _heuristic(state: State, isMaximumPlayer):
     almost_mills, closed_mills = mills_metric_count()
     if state.turn < 18:
         metric = (
-                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * almost_mills + 1 * closed_mills) / 7
+                         0 * did_Close_Morris() + 0 * killing_score + 1 * diff_blocked_pieces() + 10 * pieces_number() + 0 * almost_mills + 0 * closed_mills) / 10
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
                            f"almost_mills{almost_mills} closed_mills{closed_mills}"
     else:
         metric = (
-                         1 * did_Close_Morris() + 1 * killing_score + 1 * diff_blocked_pieces() + 1 * pieces_number() + 1 * double_morris()) / 6
+                         1 * did_Close_Morris() + 10 * killing_score + 1 * diff_blocked_pieces() + 10 * pieces_number() + 4 * double_morris()) / 26
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
@@ -230,7 +230,7 @@ def get_possible_movements(position, board):
 
 
 def _is_player_blocked(state: State):
-    pos = state.my_pos if state.maximizingPlayer else state.rival_pos
+    pos = state.rival_pos if state.maximizingPlayer else state.my_pos
     for index_soldier, placement_soldier in enumerate(pos):
         if placement_soldier < 0:
             continue

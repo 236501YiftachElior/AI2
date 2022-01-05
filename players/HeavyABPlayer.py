@@ -4,7 +4,7 @@ Alphabeta Player
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax,AlphaBeta
+from SearchAlgos import MiniMax,AlphaBeta,AlphaBetaLevel1
 from utils import _is_goal_state, State, get_possible_mills, _heuristic
 import time
 
@@ -18,7 +18,7 @@ class Player(AbstractPlayer):
         self.depth = depth
         self.game_time = game_time
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
-        self.minimax = AlphaBeta(_construct_minimax_player_utility(_heuristic), self.get_succ,
+        self.minimax = AlphaBetaLevel1(_construct_minimax_player_utility(_heuristic), self.get_succ,
                                None,
                                _is_goal_state)
 
@@ -187,6 +187,15 @@ def _construct_minimax_player_utility(heuristic):
 
     return _minimax_utility_func
 
+
+def simple_heuristic2():
+    def _minimax_utility_func(state, goal, maximizing_player):
+        if goal:
+            return 1 if maximizing_player else -1
+        else:
+            return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / 18
+
+    return _minimax_utility_func
 
 def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos,
                           rival_pos, isMaximumPlayer):
