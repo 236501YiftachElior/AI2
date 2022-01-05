@@ -127,6 +127,54 @@ class AlphaBeta(SearchAlgos):
                 best_move = option.last_move
         return currMax, best_move
 
+class AlphaBetaLevel1(SearchAlgos):
+
+    def _inner_search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT, beta=BETA_VALUE_INIT):
+        """Start the AlphaBeta algorithm.
+        :param state: The state to start from.
+        :param depth: The maximum allowed depth for the algorithm.
+        :param maximizing_player: Whether this is a max node (True) or a min node (False).
+        :param alpha: alpha value
+        :param: beta: beta value
+        :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
+        """
+        # TODO: erase the following line and implement this function
+        is_goal = self.goal(state)
+        if depth == 0 or is_goal:
+            return self.utility(state, is_goal, not maximizing_player)
+
+        current_choice = -np.inf if maximizing_player else np.inf
+        for successor_state in self.succ(state, maximizing_player):
+            if maximizing_player:
+                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                current_choice = max(utility, current_choice)
+                alpha = max(alpha, current_choice)
+                if current_choice >= beta:
+                    return np.inf
+
+            else:
+                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                current_choice = min(utility, current_choice)
+                beta = min(beta, current_choice)
+                if current_choice <= alpha:
+                    return -np.inf
+        return current_choice
+
+    def search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT, beta=BETA_VALUE_INIT):
+        currMax = -np.inf
+        options = self.succ(state, True)
+        level_1_options = self.succ(state, True)
+        for level_1_option in level_1_options:
+            if self.goal(level_1_option):
+                return 1, level_1_option.last_move
+        best_move = ()
+        for option in options:
+            v = self._inner_search(option, depth - 1, False)
+            if v > currMax:
+                currMax = v
+                best_move = option.last_move
+        return currMax, best_move
+
 
 class AlphaBetaSelectiveDeepeningTimeLimited(SearchAlgos):
 
