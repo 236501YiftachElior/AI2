@@ -194,19 +194,25 @@ def _construct_minimax_player_utility(heuristic):
     return _minimax_utility_func
 
 
-def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos_copy,
-                          rival_pos_copy, isMaximumPlayer):
+def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos,
+                          rival_pos, isMaximumPlayer):
     if isMaximumPlayer:
-        attacked_soldiers = rival_pos_copy
+        attacked_soldiers = rival_pos
     else:
-        attacked_soldiers = my_pos_copy
+        attacked_soldiers = my_pos
     for index_player_to_remove, placement_player_to_remove in enumerate(attacked_soldiers):
+        board_copy = board.copy()
+        rival_pos_copy = rival_pos.copy()
+        my_pos_copy = my_pos.copy()
         if placement_player_to_remove < 0:
             continue
-        attacked_soldiers[index_player_to_remove] = -2
-        board[placement_player_to_remove] = 0
+        if (isMaximumPlayer):
+            rival_pos_copy[index_player_to_remove] = -2
+        else:
+            my_pos_copy[index_player_to_remove] = -2
+        board_copy[placement_player_to_remove] = 0
         last_move = (last_placement, soldier_to_place, placement_player_to_remove)
-        yield State(my_pos_copy, rival_pos_copy, board, last_move, turn + 1,isMaximumPlayer,True)
+        yield State(my_pos_copy, rival_pos_copy, board_copy, last_move, turn + 1,isMaximumPlayer,True)
 
 
 def _get_info_from_mill(attacked_soldiers):

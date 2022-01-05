@@ -114,6 +114,10 @@ class AlphaBeta(SearchAlgos):
     def search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT, beta=BETA_VALUE_INIT):
         currMax = -np.inf
         options = self.succ(state, True)
+        level_one_states = self.succ(state, True)
+        for level_one_state in level_one_states:
+            if self.goal(level_one_state):
+                return 1, level_one_state.last_move
         best_move = ()
         for option in options:
             v = self._inner_search(option, depth - 1, False)
