@@ -180,7 +180,8 @@ def simple_heuristic():
         if goal:
             return 1 if maximizing_player else -1
         else:
-            return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / 18
+            return  np.sum(state.rival_pos == -2) / len(state.rival_pos) - np.sum(state.my_pos == -2) / len(
+        state.my_pos)
 
     return _minimax_utility_func
 

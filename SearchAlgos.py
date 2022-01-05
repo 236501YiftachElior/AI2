@@ -73,13 +73,15 @@ class MiniMax(SearchAlgos):
         #     if self.goal(level_one_state):
         #         return 1, level_one_state.last_move
         options = self.succ(state, True)
+        opts = list(options)
         best_move = ()
-        for option in options:
+        for option in opts:
             v = self._inner_search(option, depth - 1, False)
             if v > currMax:
                 currMax = v
                 best_move = option.last_move
         return currMax, best_move
+
 
 class AlphaBeta(SearchAlgos):
 
@@ -97,7 +99,7 @@ class AlphaBeta(SearchAlgos):
         if depth == 0 or is_goal:
             return self.utility(state, is_goal, not maximizing_player)
 
-        current_choice = -np.inf if maximizing_player else np.inf
+        current_choice = -1 if maximizing_player else 1
         for successor_state in self.succ(state, maximizing_player):
             if maximizing_player:
                 utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
@@ -110,7 +112,7 @@ class AlphaBeta(SearchAlgos):
                 utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = min(utility, current_choice)
                 beta = min(beta, current_choice)
-                if current_choice <= alpha:
+                if  current_choice <= alpha:
                     return -np.inf
         return current_choice
 
@@ -128,8 +130,8 @@ class AlphaBeta(SearchAlgos):
 
 class AlphaBetaSelectiveDeepeningTimeLimited(SearchAlgos):
 
-    def _inner_search(self, state, depth, maximizing_player,  alpha=ALPHA_VALUE_INIT,
-                      beta=BETA_VALUE_INIT,delta=0.01, remaining_time=None,):
+    def _inner_search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT,
+                      beta=BETA_VALUE_INIT, delta=0.01, remaining_time=None, ):
         """Start the AlphaBeta algorithm.
         :param state: The state to start from.
         :param depth: The maximum allowed depth for the algorithm.
@@ -147,7 +149,7 @@ class AlphaBetaSelectiveDeepeningTimeLimited(SearchAlgos):
             current_choice = -np.inf if maximizing_player_successor else np.inf
             for successor_state in self.succ(state, maximizing_player):
                 suc_util = self.utility(successor_state, self.goal(successor_state),
-                                    not maximizing_player)
+                                        not maximizing_player)
                 if suc_util - current_utility > delta:
                     utility = self._inner_search(successor_state, depth, not maximizing_player, alpha, beta)
                     if not maximizing_player:

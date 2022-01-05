@@ -105,13 +105,15 @@ class Player(AbstractPlayer):
 
     def _get_possible_movements(self, position, board):
         directions = np.array(self.directions(position))
-        return directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
-
+        res = directions[np.argwhere(board[np.array(directions)] == 0)].squeeze(1)
+        return res
     def get_succ(self, state, isMaximumPlayer=True):
         if state.turn < 18:
-            return self._get_succ_stage_1(state, isMaximumPlayer)
+            for st in self._get_succ_stage_1(state, isMaximumPlayer):
+                yield st
         else:
-            return self._get_succ_stage_2(state, isMaximumPlayer)
+            for st in  self._get_succ_stage_2(state, isMaximumPlayer):
+                yield st
 
     def set_game_params(self, board):
         """Set the game parameters needed for this player.
@@ -138,7 +140,11 @@ class Player(AbstractPlayer):
 
 
         start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn,True,False)
-        utility, (position, soldier, rival_cell_killed) = self.minimax.search(start_state, self.depth, True)
+        utility,res = self.minimax.search(start_state, self.depth, True)
+        if(len(res)>0):
+            (position, soldier, rival_cell_killed) = res
+        else:
+            assert False,"no possible moves"
         if self.my_pos[soldier] != -1:
             self.board[self.my_pos[soldier]] = 0
         if rival_cell_killed != -1:
