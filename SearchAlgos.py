@@ -66,8 +66,12 @@ class MiniMax(SearchAlgos):
                 currMin = min(v, currMin)
             return currMin
 
-    def search(self, state: State, depth, maximizing_player):
+    def search(self, state, depth, maximizing_player):
         currMax = -np.inf
+        # options = self.succ(state, True)
+        # for level_one_state in options:
+        #     if self.goal(level_one_state):
+        #         return 1, level_one_state.last_move
         options = self.succ(state, True)
         best_move = ()
         for option in options:
@@ -76,7 +80,6 @@ class MiniMax(SearchAlgos):
                 currMax = v
                 best_move = option.last_move
         return currMax, best_move
-
 
 class AlphaBeta(SearchAlgos):
 
@@ -97,7 +100,6 @@ class AlphaBeta(SearchAlgos):
             if maximizing_player:
                 utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = max(utility, current_choice)
-                direction_move = successor_state.last_move if current_choice == utility else direction_move
                 alpha = max(alpha, current_choice)
                 if current_choice >= beta:
                     return np.inf
@@ -105,7 +107,6 @@ class AlphaBeta(SearchAlgos):
             else:
                 utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = min(utility, current_choice)
-                direction_move = successor_state.last_move if current_choice == utility else direction_move
                 beta = min(beta, current_choice)
                 if current_choice <= alpha:
                     return -np.inf
