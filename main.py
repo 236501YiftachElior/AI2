@@ -4,13 +4,28 @@ import os, sys
 import utils
 import numpy as np
 
+
+def experiment(heavy_depth):
+    for depth in range(heavy_depth,heavy_depth+3):
+        heavy_ab_player_type = 'players.HeavyABPlayer'
+        light_ab_player_type = 'players.LightABPlayer'
+        __import__(heavy_ab_player_type)
+        __import__(light_ab_player_type)
+        heavy_ab_player = sys.modules[heavy_ab_player_type].Player(2000,heavy_depth)
+        light_ab_player = sys.modules[light_ab_player_type].Player(2000,depth)
+        game = GameWrapper(player_1=heavy_ab_player, player_2=light_ab_player, players_positions=[np.full(9, -1), np.full(9, -1)],
+                           print_game_in_terminal=True, time_to_make_a_move= 1000, game_time=1000)
+        while (True):
+            game.run_game()
+
+
 if __name__ == "__main__":
     players_options = [x+'Player' for x in ['Live', 'Simple', 'Minimax', 'Alphabeta', 'GlobalTimeAB', 'LightAB',
                                             'HeavyAB', 'Compete']]
 
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('-player1', default='AlphabetaPlayer', type=str,
+    parser.add_argument('-player1', default='HeavyABPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
     parser.add_argument('-player2', default='RandomPlayer',  type=str,
@@ -22,9 +37,12 @@ if __name__ == "__main__":
                         help='Global game time (sec) for each player.')
     parser.add_argument('-terminal_viz', action='store_true',
                         help='Show game in terminal only.')
+    parser.add_argument('-depth',default=3,type=float)
 
     args = parser.parse_args()
 
+    experiment(3)
+    exit(0)
     # check validity of game and turn times
     # if args.game_time < args.move_time:
     #     raise Exception('Wrong time arguments.')
@@ -33,6 +51,7 @@ if __name__ == "__main__":
     player_1_type = 'players.' + args.player1
     player_2_type = 'players.' + args.player2
     game_time = args.game_time
+    depth = args.depth
     __import__(player_1_type)
     __import__(player_2_type)
     player_1 = sys.modules[player_1_type].Player(game_time)
