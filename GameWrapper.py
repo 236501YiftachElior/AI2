@@ -44,7 +44,7 @@ class GameWrapper:
           :return: Boolean
           """
         if self.game.player_cant_move(player_index):
-            messages = [f'    Player {player_index} Won!']
+            messages = [f'    Player {2-player_index} Won!, turn {self.turn_number}']
             self.pretty_print_end_game(messages)
         else:
             return False
@@ -110,7 +110,7 @@ class GameWrapper:
             if self.game.check_end_game(1 - player_index):
                 # If rival has 3 players or less -> End Game!
                 print("End game")
-                messages = [f'    Player {player_index + 1} Won!']
+                messages = [f'    Player {player_index + 1} Won!, , turn {self.turn_number}']
                 self.pretty_print_end_game(messages)
 
             self.turn_number += 1
