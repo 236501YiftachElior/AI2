@@ -174,13 +174,29 @@ class Player(AbstractPlayer):
             self.my_pos[dead_soldier] = -2
         self.turn += 1
 
+def mills_metric_count(state:State):
+    possible_mills = get_possible_mills()
+    scores = np.zeros((len(possible_mills), 3))
+    total_score_almost = 0
+    total_scores_closed = 0
+    for mill_index, mill in enumerate(possible_mills):
+        for placement in mill:
+            if state.board_state[placement] >= 0:
+                scores[mill_index, int(state.board_state[placement])] = scores[
+                                                                            mill_index, int(
+                                                                                state.board_state[placement])] + 1
+        total_score_almost += 1 if scores[mill_index, 1] == 2 else -1 if scores[mill_index, 2] == 2 else 0
+    return total_score_almost / len(possible_mills), total_scores_closed / len(possible_mills)
+
+
 
 def simple_heuristic():
     def _minimax_utility_func(state, goal, maximizing_player):
         if goal:
             return 1 if maximizing_player else -1
         else:
-            return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / 18
+            _ , h  = mills_metric_count(state)
+            return (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) / 8
 
     return _minimax_utility_func
 

@@ -187,15 +187,21 @@ def _construct_minimax_player_utility(heuristic):
 
     return _minimax_utility_func
 
+def _test_heuristic():
+    board = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+    board[0] = 2
+    board[4] = 1
+    board[7] = 1
+    board[6] = 1
+    board[10] = 2
+    board[11] = 2
 
-def simple_heuristic2():
-    def _minimax_utility_func(state, goal, maximizing_player):
-        if goal:
-            return 1 if maximizing_player else -1
-        else:
-            return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / 18
+    my_pos = np.array([-2,4,7,6,-2,-2,-2,-2])
+    rival_pos = np.array([0, 10, 11, -2, -2, -2, -2, -2])
+    s = State(my_pos,rival_pos,board,None,25,True,False)
+    return s
 
-    return _minimax_utility_func
+
 
 def _get_states_from_mill(last_placement, soldier_to_place, turn, board, my_pos,
                           rival_pos, isMaximumPlayer):

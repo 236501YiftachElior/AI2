@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('-player1', default='HeavyABPlayer', type=str,
+    parser.add_argument('-player1', default='AlphabetaPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
     parser.add_argument('-player2', default='RandomPlayer',  type=str,
@@ -41,8 +41,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    experiment(3)
-    exit(0)
+    #experiment(3)
+    #exit(0)
     # check validity of game and turn times
     # if args.game_time < args.move_time:
     #     raise Exception('Wrong time arguments.')
