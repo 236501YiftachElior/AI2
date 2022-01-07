@@ -97,35 +97,30 @@ class AlphaBeta(SearchAlgos):
         # TODO: erase the following line and implement this function
         is_goal = self.goal(state)
         if depth == 0 or is_goal:
-            return self.utility(state, is_goal, not maximizing_player)
+            return self.utility(state, is_goal, not maximizing_player), state.last_move
 
-        current_choice = -1 if maximizing_player else 1
+        current_choice = -np.inf if maximizing_player else np.inf
+        direction_choice = ()
         for successor_state in self.succ(state, maximizing_player):
             if maximizing_player:
-                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                utility, _ = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = max(utility, current_choice)
                 alpha = max(alpha, current_choice)
                 if current_choice >= beta:
-                    return np.inf
+                    return np.inf, ()
 
             else:
-                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                utility, _ = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = min(utility, current_choice)
                 beta = min(beta, current_choice)
-                if  current_choice <= alpha:
-                    return -np.inf
-        return current_choice
+                if current_choice <= alpha:
+                    return -np.inf, ()
+            direction_choice = successor_state.last_move if utility == current_choice else direction_choice
+        return current_choice, direction_choice
 
     def search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT, beta=BETA_VALUE_INIT):
-        currMax = -np.inf
-        options = self.succ(state, True)
-        best_move = ()
-        for option in options:
-            v = self._inner_search(option, depth - 1, False)
-            if v > currMax:
-                currMax = v
-                best_move = option.last_move
-        return currMax, best_move
+        return self._inner_search(state, depth, maximizing_player)
+
 
 class AlphaBetaLevel1(SearchAlgos):
 
@@ -141,40 +136,32 @@ class AlphaBetaLevel1(SearchAlgos):
         # TODO: erase the following line and implement this function
         is_goal = self.goal(state)
         if depth == 0 or is_goal:
-            return self.utility(state, is_goal, not maximizing_player)
+            return self.utility(state, is_goal, not maximizing_player), state.last_move
 
         current_choice = -np.inf if maximizing_player else np.inf
+        direction_choice = ()
         for successor_state in self.succ(state, maximizing_player):
             if maximizing_player:
-                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                utility, _ = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = max(utility, current_choice)
                 alpha = max(alpha, current_choice)
                 if current_choice >= beta:
-                    return np.inf
+                    return np.inf, ()
 
             else:
-                utility = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
+                utility, _ = self._inner_search(successor_state, depth - 1, not maximizing_player, alpha, beta)
                 current_choice = min(utility, current_choice)
                 beta = min(beta, current_choice)
                 if current_choice <= alpha:
-                    return -np.inf
-        return current_choice
+                    return -np.inf, ()
+            direction_choice = successor_state.last_move if utility == current_choice else direction_choice
+        return current_choice, direction_choice
 
     def search(self, state, depth, maximizing_player, alpha=ALPHA_VALUE_INIT, beta=BETA_VALUE_INIT):
-        currMax = -np.inf
-        options = self.succ(state, True)
-        level_1_options = self.succ(state, True)
-        for level_1_option in level_1_options:
+        for level_1_option in self.succ(state, True):
             if self.goal(level_1_option):
                 return 1, level_1_option.last_move
-        best_move = ()
-        for option in options:
-            v = self._inner_search(option, depth - 1, False)
-            if v > currMax:
-                currMax = v
-                best_move = option.last_move
-        return currMax, best_move
-
+        return self._inner_search(state,depth,maximizing_player)
 
 class AlphaBetaSelectiveDeepeningTimeLimited(SearchAlgos):
 
