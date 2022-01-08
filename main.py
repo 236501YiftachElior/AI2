@@ -17,7 +17,7 @@ def experiment(heavy_depth):
     print(heavy_ab_player_type, 'VS', light_ab_player_type)
 
     game = GameWrapper(player_1=light_ab_player, player_2=heavy_ab_player, players_positions=[np.full(9, -1), np.full(9, -1)],
-                       print_game_in_terminal=True, time_to_make_a_move= 30, game_time=1000)
+                       print_game_in_terminal=True, time_to_make_a_move= 250, game_time=1000)
     # while (True):
     game.run_game()
 

@@ -136,7 +136,6 @@ class Player(AbstractPlayer):
         """
         depth = 1
         time_remaining = time_limit
-
         while True:
             start = time.time()
             start_state = State(self.my_pos, self.rival_pos, self.board, None, self.turn,True,False)
@@ -155,6 +154,7 @@ class Player(AbstractPlayer):
             rival_idx = np.where(self.rival_pos == rival_cell_killed)[0][0]
             self.rival_pos[rival_idx] = -2
             self.board[rival_cell_killed] = 0
+        print(f"depth reached: {depth}, time left {time_remaining}")
         self.my_pos[soldier] = position
         self.board[position] = 1
         self.turn += 1

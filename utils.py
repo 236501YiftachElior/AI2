@@ -217,14 +217,14 @@ def _heuristic(state: State, isMaximumPlayer):
     almost_mills, closed_mills = mills_metric_count()
     if state.turn < 18:
         metric = (
-                       2* number_of_morrises() + 0 * did_Close_Morris() + 5 * killing_score + 5 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 0 * closed_mills) / 33
+                       2* number_of_morrises() + 0 * did_Close_Morris() + 5 * killing_score + 0 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills) / 38
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
                            f"almost_mills{almost_mills} closed_mills{closed_mills}"
     else:
         metric = (
-                     2* number_of_morrises()+ 5 * did_Close_Morris() + 10 * killing_score + 5 * diff_blocked_pieces() + 15 * pieces_number() + 10 * double_morris()) / 48
+                     10* number_of_morrises()+ 0 * did_Close_Morris() + 0 * killing_score + 10 * diff_blocked_pieces() + 10 * pieces_number() + 10 * double_morris()) / 41
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
