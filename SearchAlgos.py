@@ -51,36 +51,30 @@ class MiniMax(SearchAlgos):
 
     def _inner_search(self, state: State, depth, maximizing_player):
         if depth == 0 or self.goal(state):
-            return self.utility(state, self.goal(state), not maximizing_player)
+            return self.utility(state, self.goal(state), not maximizing_player), state.last_move
         options = self.succ(state, maximizing_player)
+        step_taken = ()
         if maximizing_player:
             currMax = -np.inf
             for option in options:
-                v = self._inner_search(option, depth - 1, not maximizing_player)
+                v,_ = self._inner_search(option, depth - 1, not maximizing_player)
                 currMax = max(v, currMax)
-            return currMax
+                if currMax == v:
+                    step_taken = option.last_move
+
+            return currMax,step_taken
         else:
             currMin = np.inf
             for option in options:
-                v = self._inner_search(option, depth - 1, not maximizing_player)
+                v,_ = self._inner_search(option, depth - 1, not maximizing_player)
                 currMin = min(v, currMin)
-            return currMin
+                if currMin == v:
+                    step_taken = option.last_move
+
+            return currMin,step_taken
 
     def search(self, state, depth, maximizing_player):
-        currMax = -np.inf
-        # options = self.succ(state, True)
-        # for level_one_state in options:
-        #     if self.goal(level_one_state):
-        #         return 1, level_one_state.last_move
-        options = self.succ(state, True)
-        opts = list(options)
-        best_move = ()
-        for option in opts:
-            v = self._inner_search(option, depth - 1, False)
-            if v > currMax:
-                currMax = v
-                best_move = option.last_move
-        return currMax, best_move
+        return self._inner_search(state,depth,maximizing_player)
 
 
 class AlphaBeta(SearchAlgos):

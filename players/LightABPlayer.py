@@ -196,7 +196,7 @@ def simple_heuristic():
             return 1 if maximizing_player else -1
         else:
             _ , h  = mills_metric_count(state)
-            return (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) / 8
+            return 1/2
 
     return _minimax_utility_func
 
