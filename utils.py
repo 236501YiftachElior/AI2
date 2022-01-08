@@ -169,6 +169,44 @@ def _heuristic(state: State, isMaximumPlayer):
             total_scores_closed += 1 if scores[mill_index, 1] == 3 else -1 if scores[mill_index, 2] == 3 else 0
         return total_score_almost / len(possible_mills), total_scores_closed / len(possible_mills)
 
+# <<<<<<< HEAD
+# =======
+#     def two_configuration():
+#         possible_mills = get_possible_mills()
+#         my_conf = 0
+#         rival_conf = 0
+#         for mill in possible_mills:
+#             if ((state.board_state[mill[0]] == state.board_state[mill[1]] == 1) and state.board_state[mill[2]] == 0) or \
+#                     ((state.board_state[mill[1]] == state.board_state[mill[2]] == 1) and state.board_state[
+#                         mill[0]] == 0) or ((state.board_state[mill[0]] == state.board_state[mill[2]] == 1) and state.board_state[mill[1]] == 0):
+#                     my_conf += 1
+#             if ((state.board_state[mill[0]] == state.board_state[mill[1]] == 2) and state.board_state[mill[2]] == 0) or \
+#                     ((state.board_state[mill[1]] == state.board_state[mill[2]] == 2) and state.board_state[
+#                         mill[0]] == 0) or (
+#                     (state.board_state[mill[0]] == state.board_state[mill[2]] == 2) and state.board_state[
+#                 mill[1]] == 0):
+#                 rival_conf += 1
+#         return (my_conf - rival_conf)/ (my_conf+rival_conf) if (my_conf+rival_conf) else 0
+#
+#     def number_of_morrises():
+#         possible_mills = get_possible_mills()
+#         my_morrises = 0
+#         rival_morrises = 0
+#         for morris in possible_mills:
+#             if state.board_state[morris[0]] == state.board_state[morris[1]] == state.board_state[morris[2]] == 1:
+#                 my_morrises +=1
+#             if state.board_state[morris[0]] == state.board_state[morris[1]] == state.board_state[morris[2]]== 2:
+#                 rival_morrises += 1
+#         return (my_morrises-rival_morrises)/(my_morrises+rival_morrises) if (my_morrises+rival_morrises) else 0
+#
+#     def blocked_opponent_pieces():
+#         metric = 0
+#         for rival_index in np.where(state.rival_pos >= 0)[0]:
+#             if len(get_possible_movements(state.rival_pos[rival_index], state.board_state)) == 0:
+#                 metric += 1
+#         return metric / len(state.rival_pos)
+#
+# >>>>>>> 76735c942cbc3a693873b764f04775e22f7c942a
     def diff_blocked_pieces():
         my_blocked = 0
         rival_blocked = 0
@@ -178,7 +216,7 @@ def _heuristic(state: State, isMaximumPlayer):
         for my_index in np.where(state.my_pos >= 0)[0]:
             if len(get_possible_movements(state.my_pos[my_index], state.board_state)) == 0:
                 my_blocked += 1
-        return (rival_blocked - my_blocked) / 9
+        return (rival_blocked - my_blocked) / (rival_blocked + my_blocked) if (rival_blocked + my_blocked) else 0
 
     def did_Close_Morris():
         return state.didCloseMorris if isMaximumPlayer else -state.didCloseMorris
@@ -196,23 +234,30 @@ def _heuristic(state: State, isMaximumPlayer):
                 player_2_double_morris = player_2_double_morris + 1 if state.board_state[double_morris[0]] == 2 \
                     else player_2_double_morris
         double_morris_score = player_1_double_morris - player_2_double_morris
+
         return double_morris_score / 4
 
     def pieces_number():
-        return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / 9
+        return (np.sum(state.my_pos >= 0) - np.sum(state.rival_pos >= 0)) / (np.sum(state.my_pos >= 0) + np.sum(state.rival_pos >= 0)) \
+                if (np.sum(state.my_pos >= 0) + np.sum(state.rival_pos >= 0)) else 0
 
-    killing_score = (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) / 8
+    killing_score = (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) / (np.sum(state.rival_pos == -2) + np.sum(state.my_pos == -2)) \
+                if (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) else 0
     almost_mills, closed_mills = mills_metric_count()
     if state.turn < 18:
-        metric = (10*double_morris())/11
-                       # 2* number_of_morrises() + 0 * did_Close_Morris() + 5 * killing_score + 0 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills) / 38
+#         metric = (10*double_morris())/11
+#                        # 2* number_of_morrises() + 0 * did_Close_Morris() + 5 * killing_score + 0 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills) / 38
+        metric = (
+                        10 * closed_mills) / 11
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
                            f"almost_mills{almost_mills} closed_mills{closed_mills}"
     else:
-        metric = (10*closed_mills)/11
+        # metric = (10*closed_mills)/11
                      # 10* number_of_morrises()+ 0 * did_Close_Morris() + 0 * killing_score + 10 * diff_blocked_pieces() + 10 * pieces_number() + ) / 41
+        metric = (
+                         10 * closed_mills) / 11
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \

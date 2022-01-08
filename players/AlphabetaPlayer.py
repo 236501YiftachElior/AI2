@@ -10,7 +10,7 @@ import time
 
 
 class Player(AbstractPlayer):
-    branching_factor = 24
+    branching_factor = 42
 
     def __init__(self, game_time):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
