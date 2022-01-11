@@ -7,17 +7,17 @@ import numpy as np
 
 def experiment(heavy_depth):
     # for depth in range(heavy_depth,heavy_depth+3):
-    heavy_ab_player_type = 'players.AlphabetaPlayer'
-    light_ab_player_type = 'players.SimplePlayer'
+    heavy_ab_player_type = 'players.HeavyABPlayer'
+    light_ab_player_type = 'players.LightABPlayer'
     __import__(heavy_ab_player_type)
     __import__(light_ab_player_type)
-    light_ab_player = sys.modules[light_ab_player_type].Player(2000,4)
-    heavy_ab_player = sys.modules[heavy_ab_player_type].Player(2000)
+    light_ab_player = sys.modules[light_ab_player_type].Player(2000,3)
+    heavy_ab_player = sys.modules[heavy_ab_player_type].Player(2000,3)
     print('Starting Game!')
     print(heavy_ab_player_type, 'VS', light_ab_player_type)
 
     game = GameWrapper(player_1=light_ab_player, player_2=heavy_ab_player, players_positions=[np.full(9, -1), np.full(9, -1)],
-                       print_game_in_terminal=True, time_to_make_a_move= 60, game_time=1000)
+                       print_game_in_terminal=True, time_to_make_a_move= 40, game_time=1000)
     # while (True):
     game.run_game()
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('-player1', default='MinimaxPlayer', type=str,
                         help='The type of the first player.',
                         choices=players_options)
-    parser.add_argument('-player2', default='SimplePlayer',  type=str,
+    parser.add_argument('-player2', default='AlphabetaPlayer',  type=str,
                         help='The type of the second player.',
                         choices=players_options)
     parser.add_argument('-move_time', default=40, type=float,
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #experiment(3)
+    experiment(3)
     #exit(0)
     # check validity of game and turn times
     # if args.game_time < args.move_time:

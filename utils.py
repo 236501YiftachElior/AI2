@@ -243,21 +243,20 @@ def _heuristic(state: State, isMaximumPlayer):
 
     killing_score = (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) / (np.sum(state.rival_pos == -2) + np.sum(state.my_pos == -2)) \
                 if (np.sum(state.rival_pos == -2) - np.sum(state.my_pos == -2)) else 0
+
     almost_mills, closed_mills = mills_metric_count()
     if state.turn < 18:
-#         metric = (10*double_morris())/11
-#                        # 2* number_of_morrises() + 0 * did_Close_Morris() + 5 * killing_score + 0 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills) / 38
-        metric = (
-                        10 * closed_mills) / 11
+        metric = ( 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills + 7*double_morris()) / 38
+#         metric = (
+                        # 10 * closed_mills) / 11
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
                            f"almost_mills{almost_mills} closed_mills{closed_mills}"
     else:
-        # metric = (10*closed_mills)/11
-                     # 10* number_of_morrises()+ 0 * did_Close_Morris() + 0 * killing_score + 10 * diff_blocked_pieces() + 10 * pieces_number() + ) / 41
-        metric = (
-                         10 * closed_mills) / 11
+        metric = (5 * diff_blocked_pieces() + 10 * pieces_number() + 10 * almost_mills + 10 * closed_mills + 5*double_morris()) / 41
+        # metric = (
+        #                  10 * closed_mills) / 11
         assert metric < 1, f"illegal metric size, too positive, was {metric}, " \
                            f"did_close_morris {did_Close_Morris()}, killing_score{killing_score}" \
                            f"diff_blocked_pieces{diff_blocked_pieces()},pieces_number{pieces_number()}, " \
