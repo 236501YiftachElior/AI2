@@ -1,12 +1,12 @@
 """
 Alphabeta Player
 """
-from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax,AlphaBeta,AlphaBetaLevel1
-from utils import _is_goal_state, State, get_possible_mills, _heuristic
-import time
+
+from AbstractPlayer import _is_goal_state, _heuristic
+from SearchAlgos import State, AlphaBetaLevel1
+from players.AbstractPlayer import AbstractPlayer
 
 
 class Player(AbstractPlayer):

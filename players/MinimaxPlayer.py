@@ -1,11 +1,10 @@
 """
 MiniMax Player
 """
-from players.AbstractPlayer import AbstractPlayer
+from players.AbstractPlayer import AbstractPlayer,_is_goal_state, _heuristic
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax,AlphaBeta
-from utils import _is_goal_state, State, get_possible_mills, _heuristic
+from SearchAlgos import MiniMax,State
 import time
 
 
@@ -145,6 +144,7 @@ class Player(AbstractPlayer):
                 break
             end = time.time()
             interval = end - start
+            print(f"depth is {depth}, interval is {interval}")
             time_remaining = time_remaining - interval
             if time_remaining - interval * self.branching_factor < 0:
                 break

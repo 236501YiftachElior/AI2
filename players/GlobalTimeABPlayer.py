@@ -1,16 +1,17 @@
 """
 Global Time Alphabeta Player
 """
-from players.AbstractPlayer import AbstractPlayer
+import time
+
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import AlphaBetaSelectiveDeepeningTimeLimited, AlphaBeta
-from utils import _is_goal_state, State, get_possible_mills, _heuristic
-import time
+
+from SearchAlgos import AlphaBeta, State
+from players.AbstractPlayer import AbstractPlayer ,_is_goal_state, _heuristic
 
 
 class Player(AbstractPlayer):
-    branching_factor = 24
+    branching_factor = 30
 
     def __init__(self, game_time):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()

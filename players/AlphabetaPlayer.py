@@ -1,16 +1,15 @@
 """
 Alphabeta Player
 """
-from players.AbstractPlayer import AbstractPlayer
+from players.AbstractPlayer import AbstractPlayer,_is_goal_state, _heuristic
 # TODO: you can import more modules, if needed
 import numpy as np
-from SearchAlgos import MiniMax,AlphaBeta
-from utils import _is_goal_state, State, get_possible_mills, _heuristic
+from SearchAlgos import AlphaBeta, State
 import time
 
 
 class Player(AbstractPlayer):
-    branching_factor = 42
+    branching_factor = 30
 
     def __init__(self, game_time):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
@@ -144,6 +143,7 @@ class Player(AbstractPlayer):
                 break
             end = time.time()
             interval = end - start
+            print(f"depth is {depth}, interval is {interval}")
             time_remaining = time_remaining - interval
             if time_remaining - interval * self.branching_factor < 0:
                 break
@@ -154,7 +154,6 @@ class Player(AbstractPlayer):
             rival_idx = np.where(self.rival_pos == rival_cell_killed)[0][0]
             self.rival_pos[rival_idx] = -2
             self.board[rival_cell_killed] = 0
-        print(f"depth reached: {depth}, time left {time_remaining}")
         self.my_pos[soldier] = position
         self.board[position] = 1
         self.turn += 1

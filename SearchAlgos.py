@@ -4,10 +4,24 @@
 # TODO: update ALPHA_VALUE_INIT, BETA_VALUE_INIT in utils
 import time
 import numpy as np
-from utils import State
 
 ALPHA_VALUE_INIT = -np.inf
 BETA_VALUE_INIT = np.inf  # !!!!!
+
+
+class State:
+    def __init__(self, soldiers_p1, soldiers_p2, board_state, last_move, turn, maximizingPlayer, didCloseMorris):
+        self.my_pos = soldiers_p1
+        self.rival_pos = soldiers_p2
+        self.board_state = board_state
+        self.last_move = last_move
+        self.turn = turn
+        self.maximizingPlayer = maximizingPlayer
+        self.didCloseMorris = didCloseMorris
+
+    def copy(self):
+        return State(self.my_pos.copy(), self.rival_pos.copy(), self.board_state.copy(), self.last_move, self.turn,
+                     self.maximizingPlayer, self.didCloseMorris)
 
 
 class SearchAlgos:
