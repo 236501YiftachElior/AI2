@@ -4,9 +4,8 @@ Alphabeta Player
 # TODO: you can import more modules, if needed
 import numpy as np
 
-from AbstractPlayer import _is_goal_state, _heuristic
+from players.AbstractPlayer import AbstractPlayer,_is_goal_state, _heuristic
 from SearchAlgos import State, AlphaBetaLevel1
-from players.AbstractPlayer import AbstractPlayer
 
 
 class Player(AbstractPlayer):
